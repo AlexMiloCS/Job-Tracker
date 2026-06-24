@@ -1,7 +1,7 @@
 .sidebar {
   width: 240px;
-  background-color: #ffffff;
-  border-right: 1px solid #e5e7eb;
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-color);
   padding: 24px;
 }
 
@@ -9,14 +9,14 @@
   margin-top: 0;
   font-size: 20px;
   margin-bottom: 30px;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .new-job-btn {
   width: 100%;
   background-color: transparent;
   border: none;
-  color: #4b5563;
+  color: var(--text-secondary);
   font-size: 16px;
   font-weight: 500;
   font-family: inherit;
@@ -29,8 +29,8 @@
 }
 
 .new-job-btn:hover {
-  background-color: #f3f4f6;
-  color: #111827;
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .nav-links {
@@ -45,7 +45,7 @@
 .nav-links li {
   padding: 10px 12px;
   border-radius: 6px;
-  color: #4b5563;
+  color: var(--text-secondary);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -58,5 +58,5 @@
 }
 
 .nav-links li:hover:not(.active) {
-  background-color: #f9fafb;
+  background-color: var(--bg-main);
 }

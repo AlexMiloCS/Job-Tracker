@@ -3,8 +3,8 @@
   justify-content: space-between; 
   align-items: center;
   padding: 20px 40px;
-  background-color: #ffffff;
-  border-top: 1px solid #eaeaea;
+  background-color: var(--bg-card);
+  border-top: 1px solid var(--border-color);
   width: 100%;
   box-sizing: border-box;
   margin-top: auto; 
@@ -18,7 +18,7 @@
 
 .bottom-bar-left a {
   text-decoration: none;
-  color: #555555;
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 0.95rem;
   transition: color 0.2s ease;
@@ -26,18 +26,18 @@
 
 .social-icon {
   font-size: 24px; 
-  color: #6b7280;
+  color: var(--text-muted);
   transition: all 0.2s ease;
 }
 
 .social-icon:hover {
-  color: #4f46e5; 
+  color: var(--primary-color); 
   transform: translateY(-3px);
 }
 
 .bottom-bar-right p {
   margin: 0;
-  color: #888888;
+  color: var(--text-muted);
   font-size: 0.9rem;
   font-weight: 400;
 }

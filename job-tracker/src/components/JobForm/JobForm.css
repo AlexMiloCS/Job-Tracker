@@ -6,7 +6,9 @@
 
 .form-input {
   padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 14px;
   outline: none;
@@ -14,7 +16,7 @@
 }
 
 .form-input:focus {
-  border-color: #2563eb;
+  border-color: var(--border-focus);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 

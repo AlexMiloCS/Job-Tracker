@@ -7,7 +7,7 @@ function Sidebar({ onOpenModal }) {
 
   return (
     <aside className="sidebar">
-      <h2>Job Tracker</h2>
+      <h2>Career Hub</h2>
       
       <button className="new-job-btn" onClick={onOpenModal}>
         + New Job

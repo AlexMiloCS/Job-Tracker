@@ -6,8 +6,8 @@
 }
 
 .job-card {
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -19,18 +19,18 @@
 .job-title {
   margin: 0;
   font-size: 16px;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .job-company {
-  color: #6b7280;
+  color: var(--text-muted);
   font-weight: 400;
 }
 
 .job-meta {
   margin: 0;
   font-size: 14px;
-  color: #4b5563;
+  color: var(--text-secondary);
   display: flex;
   gap: 15px;
 }
@@ -45,23 +45,23 @@
 }
 
 .work-model-badge {
-  background-color: #f3f4f6;
-  color: #4b5563;
+  background-color: var(--bg-badge);
+  color: var(--text-secondary);
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
 }
 
 .job-requirements {
   font-size: 14px;
-  color: #4b5563;
+  color: var(--text-secondary);
   margin: 5px 0 0 0;
-  background-color: #f3f4f6;
+  background-color: var(--bg-badge);
   padding: 10px;
   border-radius: 6px;
-  border-left: 3px solid #d1d5db;
+  border-left: 3px solid var(--text-muted);
 }
 
 .card-footer {
@@ -69,14 +69,14 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 20px;
-  padding-top: 15px; 
-  border-top: 1px solid #374151; 
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
 }
 
 .btn-edit {
   background: transparent;
-  border: 1px solid #9ca3af; 
-  color: #e5e7eb; 
+  border: 1px solid var(--text-muted);
+  color: var(--text-secondary);
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
@@ -84,32 +84,18 @@
 }
 
 .btn-edit:hover {
-  background: #374151; 
-  border-color: #f3f4f6;
-  color: #ffffff;
+  background: var(--bg-hover);
+  border-color: var(--text-primary);
+  color: var(--text-primary);
 }
 
 .btn-link {
   font-size: 14px;
-  color: #60a5fa; 
+  color: var(--border-focus);
   text-decoration: none;
   font-weight: 500;
 }
 
 .btn-link:hover {
   text-decoration: underline;
-}
-
-@media (prefers-color-scheme: light) {
-  .btn-edit {
-    border-color: #374151;
-    color: #374151;
-  }
-  .btn-edit:hover {
-    background: #374151;
-    color: #ffffff;
-  }
-  .btn-link {
-    color: #2563eb;
-  }
 }

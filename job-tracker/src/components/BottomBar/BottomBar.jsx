@@ -1,5 +1,5 @@
 
-import './Bottombar.css';
+import './BottomBar.css';
 import { FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
 
 function BottomBar() {

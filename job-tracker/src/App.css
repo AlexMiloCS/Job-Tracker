@@ -3,16 +3,43 @@
   --primary-color: #4f46e5;
   --primary-hover: #4338ca;
   --primary-light: #e0e7ff;
+
+  /* Light Theme  */
+  --bg-main: #f9fafb;
+  --bg-card: #ffffff;
+  --bg-hover: #f3f4f6;
+  --bg-badge: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+  --border-focus: #2563eb;
+}
+
+body.dark-theme {
+  /* Dark Theme*/
+  --bg-main: #111827;
+  --bg-card: #1f2937;
+  --bg-hover: #374151;
+  --bg-badge: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --border-color: #374151;
+  --border-focus: #60a5fa;
+
+  --primary-light: #374151;
 }
 
 body {
   margin: 0;
-  background-color: #f9fafb;
-  color: #111827;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* --- Base Layout --- */
+/* Base Layout */
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -22,6 +49,8 @@ body {
   flex: 1;
   padding: 40px 60px;
   max-width: 1000px;
+  display: flex;
+  flex-direction: column;
 }
 
 .page-title {
@@ -29,14 +58,14 @@ body {
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .section-title {
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 15px;
-  color: #374151;
-  border-bottom: 1px solid #e5e7eb;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 10px;
 }

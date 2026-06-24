@@ -11,6 +11,7 @@ import Settings from './pages/SettingsPage/Settings';
 
 import Sidebar from './components/SideBar/Sidebar';
 import Header from './components/Header/Header';
+import BottomBar from './components/BottomBar/BottomBar';
 import './App.css';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
         <main className="main-content">
           <Header onLogout={handleLogout} />
           {children}
+          <BottomBar />
         </main>
       </div>
     );
