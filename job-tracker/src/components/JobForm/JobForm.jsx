@@ -1,23 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './JobForm.css';
 
-function JobForm({ onAddJob }) {
+
+function JobForm({ onSaveJob, existingJob = null }) {
   const today = new Date().toISOString().split('T')[0];
 
-  const [company, setCompany] = useState('');
-  const [title, setTitle] = useState('');
-  const [status, setStatus] = useState('Applied');
-  const [workModel, setWorkModel] = useState('Remote'); 
-  const [location, setLocation] = useState(''); 
-  const [link, setLink] = useState('');
-  const [dateApplied, setDateApplied] = useState(today);
-  const [requirements, setRequirements] = useState('');
-  const [notes, setNotes] = useState(''); 
+  const [company, setCompany] = useState(existingJob?.company || '');
+  const [title, setTitle] = useState(existingJob?.title || '');
+  const [status, setStatus] = useState(existingJob?.status || 'Applied');
+  const [workModel, setWorkModel] = useState(existingJob?.workModel || 'Remote'); 
+  const [location, setLocation] = useState(existingJob?.location || ''); 
+  const [link, setLink] = useState(existingJob?.link || '');
+  
+  const initialDate = existingJob?.dateApplied 
+    ? new Date(existingJob.dateApplied).toISOString().split('T')[0] 
+    : today;
+  const [dateApplied, setDateApplied] = useState(initialDate);
+  
+  const [requirements, setRequirements] = useState(existingJob?.requirements || '');
+  const [notes, setNotes] = useState(existingJob?.notes || ''); 
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const newJob = {
-      id: crypto.randomUUID(),
+    const jobData = {
       company,
       title,
       status,
@@ -29,17 +35,23 @@ function JobForm({ onAddJob }) {
       notes 
     };
 
-    onAddJob(newJob);
+    if (existingJob?._id) {
+      jobData._id = existingJob._id;
+    }
 
-    setCompany('');
-    setTitle('');
-    setStatus('Applied');
-    setWorkModel('Remote');
-    setLocation(''); 
-    setLink('');
-    setDateApplied(today);
-    setRequirements('');
-    setNotes(''); 
+    onSaveJob(jobData);
+
+    if (!existingJob) {
+      setCompany('');
+      setTitle('');
+      setStatus('Applied');
+      setWorkModel('Remote');
+      setLocation(''); 
+      setLink('');
+      setDateApplied(today);
+      setRequirements('');
+      setNotes(''); 
+    }
   };
 
   return (
@@ -127,7 +139,7 @@ function JobForm({ onAddJob }) {
       />
       
       <button type="submit" className="submit-btn">
-        Add Job
+        {existingJob ? 'Update Application' : 'Add Job'}
       </button>
     </form> 
   );

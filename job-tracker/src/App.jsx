@@ -1,35 +1,26 @@
 import { useState } from 'react';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { fetchJobs } from "./store/jobsSlice";
 
-import JobForm from './components/JobForm/JobForm';
-import Sidebar from './components/SideBar/Sidebar';
-import Header from './components/Header/Header';
+// Import your new modular pages
+import Dashboard from './pages/Dashboard/Dashboard';
+import JobEditor from './pages/JobEditor/JobEditor';
 import LandingPage from './pages/LandingPage/LandingPage';
 import Settings from './pages/SettingsPage/Settings';
+
+import Sidebar from './components/SideBar/Sidebar';
+import Header from './components/Header/Header';
 import './App.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate(); 
+  const dispatch = useDispatch();
 
-  // Job data state
-  const [jobs, setJobs] = useState([
-    {
-      id: crypto.randomUUID(), 
-      company: "Tech Corp",
-      title: "Frontend Developer",
-      dateApplied: "2026-06-23",
-      status: "Applied", 
-      workModel: "Hybrid", 
-      link: "https://example.com/job",
-      requirements: "Must know React and Vite." 
-    }
-  ]);
-
-  const handleAddJob = (newJob) => {
-    setJobs([newJob, ...jobs]);
-    navigate('/dashboard');
-  };
+  useState(() => {
+    dispatch(fetchJobs());
+  }, [dispatch]);
 
   const handleLogin = () => {
     setIsAuthenticated(true);
@@ -57,83 +48,20 @@ function App() {
 
   return (
     <Routes>
-      
-      {/*The Landing Page */}
+      {/* Landing Page */}
       <Route 
         path="/" 
         element={!isAuthenticated ? <LandingPage onLogin={handleLogin} /> : <Navigate to="/dashboard" />} 
       />
 
-      {/*The Dashboard */}
-      <Route 
-        path="/dashboard" 
-        element={
-          <ProtectedLayout>
-            <section>
-              <h2 className="section-title">Recent Activity ({jobs.length})</h2>
-              
-              <div className="job-list-container">
-                {jobs.map((job) => (
-                  <div key={job.id} className="job-card">
-                    <h3 className="job-title">
-                      {job.title} <span className="job-company">at {job.company}</span>
-                    </h3>
-                    
-                    <div className="job-meta">
-                      <span className="status-badge">{job.status}</span>
-                      <span className="work-model-badge">{job.workModel}</span> 
-                      <span>Applied: {job.dateApplied}</span>
-                    </div>
-
-                    {job.requirements && (
-                      <p className="job-requirements">
-                        <strong>Notes:</strong> {job.requirements}
-                      </p>
-                    )}
-
-                    {job.link && (
-                      <a href={job.link} target="_blank" rel="noopener noreferrer" className="job-link">
-                        View Posting →
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          </ProtectedLayout>
-        } 
-      />
-
-      {/*New Job Form */}
-      <Route 
-        path="/new" 
-        element={
-          <ProtectedLayout>
-            <section className="new-job-page">
-              <button 
-                onClick={() => navigate('/dashboard')} 
-                style={{ marginBottom: '20px', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', border: '1px solid #ccc', background: '#f9f9f9' }}
-              >
-                ← Back to Dashboard
-              </button>
-              
-              <h2 style={{ marginTop: 0, marginBottom: '20px' }}>Log New Application</h2>
-              <JobForm onAddJob={handleAddJob} />
-            </section>
-          </ProtectedLayout>
-        } 
-      />
-
-      {/*Settings Page*/}
-      <Route 
-        path="/settings" 
-        element={
-          <ProtectedLayout>
-            <Settings />
-          </ProtectedLayout>
-        } 
-      />
-
+      {/* Main App Routes */}
+      <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
+      
+      {/* Editor page*/}
+      <Route path="/new" element={<ProtectedLayout><JobEditor isNew={true} /></ProtectedLayout>} />
+      <Route path="/edit/:id" element={<ProtectedLayout><JobEditor isNew={false} /></ProtectedLayout>} />
+      
+      <Route path="/settings" element={<ProtectedLayout><Settings /></ProtectedLayout>} />
     </Routes>
   );
 }

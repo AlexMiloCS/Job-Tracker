@@ -36,3 +36,27 @@ app.post('/api/jobs', async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
+app.get('/api/jobs', async (req, res) => {
+  try {
+    const jobs = await Job.find().sort({ dateApplied: -1 });
+    res.status(200).json(jobs);
+  } catch (error) {
+    res.status(500).json({ error: 'Server Error: Could not fetch jobs' });
+  }
+});
+
+app.put('/api/jobs/:id', async (req, res) => {
+  try {
+    const updatedJob = await Job.findByIdAndUpdate(
+      req.params.id, 
+      req.body, 
+      { new: true } 
+    );
+    
+    if (!updatedJob) return res.status(404).json({ error: 'Job not found' });
+    res.status(200).json(updatedJob);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
