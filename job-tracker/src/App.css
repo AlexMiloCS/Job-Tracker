@@ -1,0 +1,47 @@
+/* App.css */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.section-margin {
+  margin-bottom: 40px;
+}
+
+.placeholder-text {
+  color: #666;
+}
+
+.job-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.job-card {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.job-title {
+  margin: 0 0 5px 0;
+}
+
+.job-details {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+}
+
+.job-link {
+  font-size: 14px;
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.job-link:hover {
+  text-decoration: underline;
+}
