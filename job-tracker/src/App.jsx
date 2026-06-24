@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 
-// Updated imports to match your new folder structure exactly
 import JobForm from './components/JobForm/JobForm';
 import Sidebar from './components/SideBar/Sidebar';
 import Header from './components/Header/Header';
 import LandingPage from './pages/LandingPage/LandingPage';
-import Settings from './pages/SettingsPage/Settings'; // <-- Added Settings import
+import Settings from './pages/SettingsPage/Settings';
 import './App.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate(); // Hook to change URLs
+  const navigate = useNavigate(); 
 
   // Job data state
   const [jobs, setJobs] = useState([
@@ -29,7 +28,7 @@ function App() {
 
   const handleAddJob = (newJob) => {
     setJobs([newJob, ...jobs]);
-    navigate('/dashboard'); // Automatically go back to dashboard after submit
+    navigate('/dashboard');
   };
 
   const handleLogin = () => {
@@ -59,13 +58,13 @@ function App() {
   return (
     <Routes>
       
-      {/* Route 1: The Landing Page */}
+      {/*The Landing Page */}
       <Route 
         path="/" 
         element={!isAuthenticated ? <LandingPage onLogin={handleLogin} /> : <Navigate to="/dashboard" />} 
       />
 
-      {/* Route 2: The Dashboard */}
+      {/*The Dashboard */}
       <Route 
         path="/dashboard" 
         element={
@@ -105,7 +104,7 @@ function App() {
         } 
       />
 
-      {/* Route 3: The New Job Form */}
+      {/*New Job Form */}
       <Route 
         path="/new" 
         element={
@@ -125,7 +124,7 @@ function App() {
         } 
       />
 
-      {/* Route 4: The Settings Page */}
+      {/*Settings Page*/}
       <Route 
         path="/settings" 
         element={
