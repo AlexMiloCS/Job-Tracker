@@ -1,3 +1,10 @@
+.job-editor-page {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
 .job-editor-header {
   display: flex;
   justify-content: space-between;

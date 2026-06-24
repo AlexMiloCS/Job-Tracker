@@ -12,14 +12,14 @@ export default function JobEditor({ isNew = false }) {
 
   const handleSave = (data) => {
     isNew ? dispatch(addJob(data)) : dispatch(updateJob(data));
-    navigate('/dashboard');
+    navigate('/my-jobs');
   };
 
   return (
     <section className="job-editor-page">
       <div className="job-editor-header">
         <h2 className="section-title">{isNew ? 'Log New Application' : 'Edit Application'}</h2>
-        <button className="btn-back" onClick={() => navigate('/dashboard')}>Back</button>
+        <button className="btn-back" onClick={() => navigate('/my-jobs')}>Back</button>
       </div>
       <JobForm key={isNew ? 'new' : id} existingJob={job} onSaveJob={handleSave} />
     </section>

@@ -7,16 +7,16 @@ function Header({ onLogout }) {
 
   return (
     <header className="top-header">
-      <div className="header-logo" onClick={() => navigate('/dashboard')}>
+      <div className="header-logo" onClick={() => navigate('/my-jobs')}>
         Career Hub
       </div>
 
       <nav className="header-nav">
         <button 
-          className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
-          onClick={() => navigate('/dashboard')}
+          className={`nav-link ${location.pathname === '/my-jobs' ? 'active' : ''}`}
+          onClick={() => navigate('/my-jobs')}
         >
-          Dashboard
+          My Jobs
         </button>
         <button 
           className={`nav-link ${location.pathname === '/analytics' ? 'active' : ''}`}

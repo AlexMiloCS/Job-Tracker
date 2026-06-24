@@ -5,7 +5,7 @@ import { fetchJobs, clearJobs } from "./store/jobsSlice";
 import { logout } from './store/authSlice';
 
 // Import your new modular pages
-import Dashboard from './pages/Dashboard/Dashboard';
+import MyJobs from './pages/MyJobs/MyJobs';
 import JobEditor from './pages/JobEditor/JobEditor';
 import LandingPage from './pages/LandingPage/LandingPage';
 import Settings from './pages/SettingsPage/Settings';
@@ -30,7 +30,7 @@ function App() {
 
   const handleLogin = () => {
     // With real auth, state is updated via Redux, so just navigate
-    navigate('/dashboard'); 
+    navigate('/my-jobs'); 
   };
 
   const handleLogout = () => {
@@ -58,17 +58,20 @@ function App() {
       {/* Landing Page */}
       <Route 
         path="/" 
-        element={!isAuthenticated ? <LandingPage onLogin={handleLogin} /> : <Navigate to="/dashboard" />} 
+        element={!isAuthenticated ? <LandingPage onLogin={handleLogin} /> : <Navigate to="/my-jobs" />} 
       />
 
       {/* Main App Routes */}
-      <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
+      <Route path="/my-jobs" element={<ProtectedLayout><MyJobs /></ProtectedLayout>} />
       
       {/* Editor page*/}
       <Route path="/new" element={<ProtectedLayout><JobEditor isNew={true} /></ProtectedLayout>} />
       <Route path="/edit/:id" element={<ProtectedLayout><JobEditor isNew={false} /></ProtectedLayout>} />
       
       <Route path="/settings" element={<ProtectedLayout><Settings /></ProtectedLayout>} />
+      
+      {/* Fallback for old bookmarks (like /dashboard) or unknown routes */}
+      <Route path="*" element={<Navigate to={isAuthenticated ? "/my-jobs" : "/"} replace />} />
     </Routes>
   );
 }

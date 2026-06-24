@@ -1,11 +1,26 @@
+.my-jobs-layout {
+  display: flex;
+  height: 100%;
+}
+
+.my-jobs-content {
+  flex: 1;
+  padding: 0 40px 40px;
+  overflow-y: auto;
+}
+
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 10px;
-  margin-bottom: 15px;
+  margin-top: 40px;
+  margin-bottom: 30px;
   max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }
 
 .dashboard-header .section-title {
@@ -36,6 +51,8 @@
   flex-direction: column;
   gap: 15px;
   max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .job-card {
