@@ -30,9 +30,10 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
     if (job.workModel) {
       workModelMap[job.workModel] = (workModelMap[job.workModel] || 0) + 1;
     }
-    // Count Locations
-    if (job.location) {
-      locationMap[job.location] = (locationMap[job.location] || 0) + 1;
+    // Count Locations (prefer city, fallback to old location)
+    const locKey = job.city || job.location;
+    if (locKey) {
+      locationMap[locKey] = (locationMap[locKey] || 0) + 1;
     }
   });
 
@@ -73,35 +74,6 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
                     onClick={() => onSelectFilter({ type: 'status', value: status })}
                   >
                     <span className="item-label" title={status}>{status}</span>
-                    <span className="count-badge">{count}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {roles.length > 0 && (
-        <div className="sidebar-section">
-          <div 
-            className="sidebar-title collapsible" 
-            onClick={() => setIsRolesOpen(!isRolesOpen)}
-          >
-            By Role
-            {isRolesOpen ? <FaChevronDown className="sidebar-icon" /> : <FaChevronRight className="sidebar-icon" />}
-          </div>
-          {isRolesOpen && (
-            <div className="sidebar-list">
-              {roles.map(([role, count]) => {
-                const isActive = activeFilter?.type === 'role' && activeFilter?.value === role;
-                return (
-                  <button 
-                    key={role}
-                    className={`sidebar-item ${isActive ? 'active' : ''}`}
-                    onClick={() => onSelectFilter({ type: 'role', value: role })}
-                  >
-                    <span className="item-label" title={role}>{role}</span>
                     <span className="count-badge">{count}</span>
                   </button>
                 );
@@ -160,6 +132,35 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
                     onClick={() => onSelectFilter({ type: 'location', value: location })}
                   >
                     <span className="item-label" title={location}>{location}</span>
+                    <span className="count-badge">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {roles.length > 0 && (
+        <div className="sidebar-section">
+          <div 
+            className="sidebar-title collapsible" 
+            onClick={() => setIsRolesOpen(!isRolesOpen)}
+          >
+            By Role
+            {isRolesOpen ? <FaChevronDown className="sidebar-icon" /> : <FaChevronRight className="sidebar-icon" />}
+          </div>
+          {isRolesOpen && (
+            <div className="sidebar-list">
+              {roles.map(([role, count]) => {
+                const isActive = activeFilter?.type === 'role' && activeFilter?.value === role;
+                return (
+                  <button 
+                    key={role}
+                    className={`sidebar-item ${isActive ? 'active' : ''}`}
+                    onClick={() => onSelectFilter({ type: 'role', value: role })}
+                  >
+                    <span className="item-label" title={role}>{role}</span>
                     <span className="count-badge">{count}</span>
                   </button>
                 );

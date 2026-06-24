@@ -7,6 +7,8 @@ const jobSchema = new mongoose.Schema({
   status: { type: String, default: 'Applied' },
   workModel: { type: String, default: 'Remote' },
   location: { type: String },
+  city: { type: String },
+  country: { type: String },
   dateApplied: { type: Date, default: Date.now },
   requirements: { type: String },
   notes: { type: String },

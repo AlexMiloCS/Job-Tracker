@@ -9,7 +9,8 @@ function JobForm({ onSaveJob, existingJob = null }) {
   const [title, setTitle] = useState(existingJob?.title || '');
   const [status, setStatus] = useState(existingJob?.status || 'Applied');
   const [workModel, setWorkModel] = useState(existingJob?.workModel || 'Remote'); 
-  const [location, setLocation] = useState(existingJob?.location || ''); 
+  const [city, setCity] = useState(existingJob?.city || existingJob?.location || ''); 
+  const [country, setCountry] = useState(existingJob?.country || ''); 
   const [link, setLink] = useState(existingJob?.link || '');
   
   const initialDate = existingJob?.dateApplied 
@@ -28,7 +29,8 @@ function JobForm({ onSaveJob, existingJob = null }) {
       title,
       status,
       workModel,
-      location, 
+      city,
+      country,
       link,
       dateApplied,
       requirements,
@@ -46,7 +48,8 @@ function JobForm({ onSaveJob, existingJob = null }) {
       setTitle('');
       setStatus('Applied');
       setWorkModel('Remote');
-      setLocation(''); 
+      setCity(''); 
+      setCountry('');
       setLink('');
       setDateApplied(today);
       setRequirements('');
@@ -100,13 +103,24 @@ function JobForm({ onSaveJob, existingJob = null }) {
         </select>
       </div>
 
-      <input 
-        type="text" 
-        placeholder="Location (e.g., City, State, or N/A)" 
-        value={location} 
-        onChange={(e) => setLocation(e.target.value)} 
-        className="form-input"
-      />
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <input 
+          type="text" 
+          placeholder="City" 
+          value={city} 
+          onChange={(e) => setCity(e.target.value)} 
+          className="form-input"
+          style={{ flex: 1 }}
+        />
+        <input 
+          type="text" 
+          placeholder="Country" 
+          value={country} 
+          onChange={(e) => setCountry(e.target.value)} 
+          className="form-input"
+          style={{ flex: 1 }}
+        />
+      </div>
 
       <input 
         type="date" 

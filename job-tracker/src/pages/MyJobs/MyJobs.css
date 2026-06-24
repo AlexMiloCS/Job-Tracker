@@ -86,12 +86,35 @@
 }
 
 .status-badge {
-  background-color: #dbeafe;
-  color: #1e40af;
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
+}
+
+.status-saved {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.status-applied {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-interviewing {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.status-offer {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
 .work-model-badge {
@@ -104,14 +127,20 @@
   border: 1px solid var(--border-color);
 }
 
+.location-badge {
+  background-color: var(--bg-badge);
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+}
+
 .job-requirements {
   font-size: 14px;
   color: var(--text-secondary);
-  margin: 5px 0 0 0;
-  background-color: var(--bg-badge);
-  padding: 10px;
-  border-radius: 6px;
-  border-left: 3px solid var(--text-muted);
+  margin: 15px 0 0 0;
 }
 
 .card-footer {
@@ -139,6 +168,26 @@
   color: var(--text-primary);
 }
 
+.btn-view {
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.btn-view:hover {
+  background: rgba(var(--primary-color-rgb, 59, 130, 246), 0.1);
+  text-decoration: none;
+}
+
 .btn-link {
   font-size: 14px;
   color: var(--border-focus);
@@ -148,6 +197,58 @@
 
 .btn-link:hover {
   text-decoration: underline;
+}
+
+.sort-dropdown {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.sort-dropdown:focus {
+  border-color: var(--border-focus);
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-page {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-page:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--text-muted);
+}
+
+.btn-page:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
 .card-actions {
