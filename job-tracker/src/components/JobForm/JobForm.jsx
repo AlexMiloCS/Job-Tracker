@@ -8,10 +8,11 @@ function JobForm({ onAddJob }) {
   const [title, setTitle] = useState('');
   const [status, setStatus] = useState('Applied');
   const [workModel, setWorkModel] = useState('Remote'); 
+  const [location, setLocation] = useState(''); 
   const [link, setLink] = useState('');
   const [dateApplied, setDateApplied] = useState(today);
   const [requirements, setRequirements] = useState('');
-
+  const [notes, setNotes] = useState(''); 
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -20,10 +21,12 @@ function JobForm({ onAddJob }) {
       company,
       title,
       status,
-      workModel, // 2. Add it to our new job object
+      workModel,
+      location, 
       link,
       dateApplied,
-      requirements
+      requirements,
+      notes 
     };
 
     onAddJob(newJob);
@@ -31,10 +34,12 @@ function JobForm({ onAddJob }) {
     setCompany('');
     setTitle('');
     setStatus('Applied');
-    setWorkModel('Remote'); // 3. Reset it after submission
+    setWorkModel('Remote');
+    setLocation(''); 
     setLink('');
     setDateApplied(today);
     setRequirements('');
+    setNotes(''); 
   };
 
   return (
@@ -57,7 +62,6 @@ function JobForm({ onAddJob }) {
         className="form-input"
       />
       
-      {/* 4. We can put the two dropdowns side-by-side using a quick flex container */}
       <div style={{ display: 'flex', gap: '10px' }}>
         <select 
           value={status} 
@@ -72,7 +76,6 @@ function JobForm({ onAddJob }) {
           <option value="Rejected">Rejected</option>
         </select>
 
-        {/* 5. The new Work Model dropdown */}
         <select 
           value={workModel} 
           onChange={(e) => setWorkModel(e.target.value)}
@@ -86,6 +89,14 @@ function JobForm({ onAddJob }) {
       </div>
 
       <input 
+        type="text" 
+        placeholder="Location (e.g., City, State, or N/A)" 
+        value={location} 
+        onChange={(e) => setLocation(e.target.value)} 
+        className="form-input"
+      />
+
+      <input 
         type="date" 
         value={dateApplied} 
         onChange={(e) => setDateApplied(e.target.value)} 
@@ -94,9 +105,16 @@ function JobForm({ onAddJob }) {
       />
 
       <textarea 
-        placeholder="Requirements / Notes (e.g., React, TypeScript, Cover Letter needed)" 
+        placeholder="Requirements (e.g., React, TypeScript, 3+ Years Exp)" 
         value={requirements} 
         onChange={(e) => setRequirements(e.target.value)} 
+        className="form-input textarea-input"
+      />
+
+      <textarea 
+        placeholder="Notes (e.g., Cover Letter needed, Referral from Sarah)" 
+        value={notes} 
+        onChange={(e) => setNotes(e.target.value)} 
         className="form-input textarea-input"
       />
 
@@ -111,7 +129,7 @@ function JobForm({ onAddJob }) {
       <button type="submit" className="submit-btn">
         Add Job
       </button>
-    </form>
+    </form> 
   );
 }
 

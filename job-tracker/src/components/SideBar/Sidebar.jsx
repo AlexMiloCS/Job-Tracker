@@ -14,7 +14,7 @@ function Sidebar({ onOpenModal }) {
       </button>
 
       <ul className="nav-links">
-        {/* Navigates to Dashboard */}
+        {/*Dashboard */}
         <li 
           className={location.pathname === '/dashboard' ? 'active' : ''} 
           onClick={() => navigate('/dashboard')}
@@ -22,10 +22,9 @@ function Sidebar({ onOpenModal }) {
           Dashboard
         </li>
         
-        {/* We'll leave Analytics inactive for now */}
         <li>Analytics</li> 
         
-        {/* Navigates to Settings */}
+        {/*Settings */}
         <li 
           className={location.pathname === '/settings' ? 'active' : ''} 
           onClick={() => navigate('/settings')}

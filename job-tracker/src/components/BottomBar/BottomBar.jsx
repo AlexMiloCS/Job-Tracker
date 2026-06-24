@@ -33,7 +33,6 @@ function BottomBar() {
       </div>
       
       <div className="bottom-bar-right">
-        {/* Dynamic year and standard copyright text */}
         <p>&copy; {currentYear} Alexandros Milonakis. All rights reserved.</p>
       </div>
     </footer>

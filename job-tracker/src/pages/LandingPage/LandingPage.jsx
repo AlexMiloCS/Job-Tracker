@@ -4,7 +4,6 @@ import './LandingPage.css';
 function LandingPage({ onLogin }) {
   return (
     <div className="landing-container">
-      {/* Top Navigation for the Landing Page */}
       <nav className="landing-nav">
         <h2 className="brand-logo">Job Tracker</h2>
         <div className="header-actions">
@@ -13,7 +12,7 @@ function LandingPage({ onLogin }) {
         </div>
       </nav>
 
-      {/* The Hero Section with Text and Banner Image */}
+      {/* The Hero Section */}
       <main className="hero-section">
         <div className="hero-text">
           <h1 className="hero-title">
@@ -28,7 +27,7 @@ function LandingPage({ onLogin }) {
         </div>
         
         <div className="hero-image-container">
-          {/* Using a high-quality free stock photo as the banner */}
+          {/*free stock photo*/}
           <img 
             src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&q=80&w=1200" 
             alt="Workspace with computer" 
@@ -37,7 +36,7 @@ function LandingPage({ onLogin }) {
         </div>
       </main>
 
-      {/* 2. Added the BottomBar component right here */}
+      {/*BottomBar component*/}
       <BottomBar />
       
     </div>
