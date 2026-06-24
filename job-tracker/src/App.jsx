@@ -1,8 +1,19 @@
 import { useState } from 'react';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+
+// Updated imports to match your new folder structure exactly
+import JobForm from './components/JobForm/JobForm';
+import Sidebar from './components/SideBar/Sidebar';
+import Header from './components/Header/Header';
+import LandingPage from './pages/LandingPage/LandingPage';
+import Settings from './pages/SettingsPage/Settings'; // <-- Added Settings import
+import './App.css';
 
 function App() {
-  // We are placing your blueprint right here as our initial "dummy" data.
-  // Later, this array will start empty, and our form will push new objects like this into it.
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate(); // Hook to change URLs
+
+  // Job data state
   const [jobs, setJobs] = useState([
     {
       id: crypto.randomUUID(), 
@@ -10,39 +21,121 @@ function App() {
       title: "Frontend Developer",
       dateApplied: "2026-06-23",
       status: "Applied", 
-      link: "https://example.com/job"
+      workModel: "Hybrid", 
+      link: "https://example.com/job",
+      requirements: "Must know React and Vite." 
     }
   ]);
 
+  const handleAddJob = (newJob) => {
+    setJobs([newJob, ...jobs]);
+    navigate('/dashboard'); // Automatically go back to dashboard after submit
+  };
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    navigate('/dashboard'); 
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    navigate('/'); 
+  };
+
+  const ProtectedLayout = ({ children }) => {
+    if (!isAuthenticated) return <Navigate to="/" />; 
+    
+    return (
+      <div className="app-layout">
+        <Sidebar onOpenModal={() => navigate('/new')} />
+        <main className="main-content">
+          <Header onLogout={handleLogout} />
+          {children}
+        </main>
+      </div>
+    );
+  };
+
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>My Job Tracker</h1>
+    <Routes>
       
-      <section style={{ marginBottom: '40px' }}>
-        <h2>Add a New Job</h2>
-        <p style={{ color: '#666' }}>Form goes here...</p>
-      </section>
+      {/* Route 1: The Landing Page */}
+      <Route 
+        path="/" 
+        element={!isAuthenticated ? <LandingPage onLogin={handleLogin} /> : <Navigate to="/dashboard" />} 
+      />
 
-      <section>
-        <h2>My Applications ({jobs.length})</h2>
-        
-        {/* Here is where we map over the jobs array to display them on the screen */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {jobs.map((job) => (
-            <div key={job.id} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
-              <h3 style={{ margin: '0 0 5px 0' }}>{job.title} at {job.company}</h3>
-              <p style={{ margin: '0 0 5px 0', fontSize: '14px' }}>
-                <strong>Status:</strong> {job.status} | <strong>Applied:</strong> {job.dateApplied}
-              </p>
-              <a href={job.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px', color: 'blue' }}>
-                View Job Description
-              </a>
-            </div>
-          ))}
-        </div>
+      {/* Route 2: The Dashboard */}
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedLayout>
+            <section>
+              <h2 className="section-title">Recent Activity ({jobs.length})</h2>
+              
+              <div className="job-list-container">
+                {jobs.map((job) => (
+                  <div key={job.id} className="job-card">
+                    <h3 className="job-title">
+                      {job.title} <span className="job-company">at {job.company}</span>
+                    </h3>
+                    
+                    <div className="job-meta">
+                      <span className="status-badge">{job.status}</span>
+                      <span className="work-model-badge">{job.workModel}</span> 
+                      <span>Applied: {job.dateApplied}</span>
+                    </div>
 
-      </section>
-    </div>
+                    {job.requirements && (
+                      <p className="job-requirements">
+                        <strong>Notes:</strong> {job.requirements}
+                      </p>
+                    )}
+
+                    {job.link && (
+                      <a href={job.link} target="_blank" rel="noopener noreferrer" className="job-link">
+                        View Posting →
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          </ProtectedLayout>
+        } 
+      />
+
+      {/* Route 3: The New Job Form */}
+      <Route 
+        path="/new" 
+        element={
+          <ProtectedLayout>
+            <section className="new-job-page">
+              <button 
+                onClick={() => navigate('/dashboard')} 
+                style={{ marginBottom: '20px', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', border: '1px solid #ccc', background: '#f9f9f9' }}
+              >
+                ← Back to Dashboard
+              </button>
+              
+              <h2 style={{ marginTop: 0, marginBottom: '20px' }}>Log New Application</h2>
+              <JobForm onAddJob={handleAddJob} />
+            </section>
+          </ProtectedLayout>
+        } 
+      />
+
+      {/* Route 4: The Settings Page */}
+      <Route 
+        path="/settings" 
+        element={
+          <ProtectedLayout>
+            <Settings />
+          </ProtectedLayout>
+        } 
+      />
+
+    </Routes>
   );
 }
 

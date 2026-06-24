@@ -1,45 +1,119 @@
-/* App.css */
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: system-ui, -apple-system, sans-serif;
+/* --- Global Variables --- */
+:root {
+  --primary-color: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #e0e7ff;
 }
 
-.section-margin {
-  margin-bottom: 40px;
+body {
+  margin: 0;
+  background-color: #f9fafb;
+  color: #111827;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-.placeholder-text {
-  color: #666;
+/* --- Base Layout --- */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
 }
 
-.job-list {
+.main-content {
+  flex: 1;
+  padding: 40px 60px;
+  max-width: 1000px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: #111827;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+/* --- Dashboard Job Cards --- */
+.job-list-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
+  max-width: 800px;
 }
 
 .job-card {
-  border: 1px solid #ccc;
-  padding: 15px;
-  border-radius: 8px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .job-title {
-  margin: 0 0 5px 0;
+  margin: 0;
+  font-size: 16px;
+  color: #111827;
 }
 
-.job-details {
-  margin: 0 0 5px 0;
+.job-company {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.job-meta {
+  margin: 0;
   font-size: 14px;
+  color: #4b5563;
+  display: flex;
+  gap: 15px;
+}
+
+.status-badge {
+  background-color: #dbeafe;
+  color: #1e40af;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.work-model-badge {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+}
+
+.job-requirements {
+  font-size: 14px;
+  color: #4b5563;
+  margin: 5px 0 0 0;
+  background-color: #f3f4f6;
+  padding: 10px;
+  border-radius: 6px;
+  border-left: 3px solid #d1d5db;
 }
 
 .job-link {
   font-size: 14px;
-  color: #0066cc;
+  color: #2563eb;
   text-decoration: none;
+  font-weight: 500;
+  margin-top: 5px;
 }
 
 .job-link:hover {
