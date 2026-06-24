@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './JobForm.css';
 
 
-function JobForm({ onSaveJob, existingJob = null }) {
+function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
   const today = new Date().toISOString().split('T')[0];
 
   const [company, setCompany] = useState(existingJob?.company || '');
@@ -20,6 +20,17 @@ function JobForm({ onSaveJob, existingJob = null }) {
   
   const [requirements, setRequirements] = useState(existingJob?.requirements || '');
   const [notes, setNotes] = useState(existingJob?.notes || ''); 
+
+  // Apply AI autofill data when it arrives (non-destructive: only sets fields present in the data)
+  useEffect(() => {
+    if (!autofillData) return;
+    if (autofillData.company) setCompany(autofillData.company);
+    if (autofillData.title) setTitle(autofillData.title);
+    if (autofillData.workModel) setWorkModel(autofillData.workModel);
+    if (autofillData.city) setCity(autofillData.city);
+    if (autofillData.country) setCountry(autofillData.country);
+    if (autofillData.requirements) setRequirements(autofillData.requirements);
+  }, [autofillData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

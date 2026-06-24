@@ -36,3 +36,91 @@
 .btn-back:hover {
   background-color: var(--primary-hover);
 }
+
+/* Header button row */
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* AI Autofill toggle button */
+.btn-autofill-toggle {
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-autofill-toggle:hover,
+.btn-autofill-toggle.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Autofill collapsible section */
+.autofill-section {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto 20px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+
+.autofill-textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.autofill-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-autofill {
+  background-color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-autofill:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+.btn-autofill:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.autofill-error {
+  color: #ef4444;
+  font-size: 13px;
+  margin: 0;
+}
+
+.autofill-success {
+  color: #22c55e;
+  font-size: 13px;
+  margin: 0;
+  font-weight: 500;
+}

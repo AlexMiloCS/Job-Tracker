@@ -7,6 +7,7 @@ import User from './models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { requireAuth } from './middleware/auth.js';
+import groqRoutes from './routes/groq.js';
 
 dotenv.config();
 
@@ -15,6 +16,9 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json()); 
+
+// Groq LLM routes
+app.use('/api/groq', groqRoutes);
 
 const connectDB = async () => {
   try {
