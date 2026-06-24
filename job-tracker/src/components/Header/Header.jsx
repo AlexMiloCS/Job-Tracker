@@ -1,10 +1,38 @@
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Header.css';
+
 function Header({ onLogout }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   return (
     <header className="top-header">
-      <h2 className="header-title">Job Tracker</h2>
+      <div className="header-logo" onClick={() => navigate('/dashboard')}>
+        Career Hub
+      </div>
+
+      <nav className="header-nav">
+        <button 
+          className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
+          onClick={() => navigate('/dashboard')}
+        >
+          Dashboard
+        </button>
+        <button 
+          className={`nav-link ${location.pathname === '/analytics' ? 'active' : ''}`}
+          onClick={() => navigate('/analytics')}
+        >
+          Analytics
+        </button>
+        <button 
+          className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}
+          onClick={() => navigate('/settings')}
+        >
+          Settings
+        </button>
+      </nav>
+
       <div className="header-actions">
-        {/* We replace the login/signup buttons with a single Log Out button */}
         <button className="auth-btn login-btn" onClick={onLogout}>
           Log Out
         </button>

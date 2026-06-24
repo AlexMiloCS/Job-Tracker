@@ -1,14 +1,25 @@
+import { useState } from 'react';
 import BottomBar from '../../components/BottomBar/BottomBar';
+import AuthModal from '../../components/AuthModal/AuthModal';
 import './LandingPage.css';
 
 function LandingPage({ onLogin }) {
+  const [authModalMode, setAuthModalMode] = useState(null);
+
+  // When login completes successfully, trigger the app-level login
+  // which handles routing.
+  const handleAuthSuccess = () => {
+    setAuthModalMode(null);
+    onLogin();
+  };
+
   return (
     <div className="landing-container">
       <nav className="landing-nav">
         <h2 className="brand-logo">Job Tracker</h2>
         <div className="header-actions">
-          <button className="auth-btn login-btn" onClick={onLogin}>Log In</button>
-          <button className="auth-btn signup-btn" onClick={onLogin}>Sign Up</button>
+          <button className="auth-btn login-btn" onClick={() => setAuthModalMode('login')}>Log In</button>
+          <button className="auth-btn signup-btn" onClick={() => setAuthModalMode('signup')}>Sign Up</button>
         </div>
       </nav>
 
@@ -21,7 +32,7 @@ function LandingPage({ onLogin }) {
           <p className="hero-subtitle">
             Track applications, organize requirements, and land your dream job faster with an elegant, built-for-you dashboard.
           </p>
-          <button className="cta-btn" onClick={onLogin}>
+          <button className="cta-btn" onClick={() => setAuthModalMode('signup')}>
             Start Tracking for Free →
           </button>
         </div>
@@ -39,6 +50,7 @@ function LandingPage({ onLogin }) {
       {/*BottomBar component*/}
       <BottomBar />
       
+      {authModalMode && <AuthModal initialMode={authModalMode} onClose={handleAuthSuccess} />}
     </div>
   );
 }

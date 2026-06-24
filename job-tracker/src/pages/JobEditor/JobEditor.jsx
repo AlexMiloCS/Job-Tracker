@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateJob, addJob } from '../../store/jobsSlice';
 import JobForm from '../../components/JobForm/JobForm';
+import './JobEditor.css';
 
 export default function JobEditor({ isNew = false }) {
   const { id } = useParams();
@@ -16,8 +17,10 @@ export default function JobEditor({ isNew = false }) {
 
   return (
     <section className="job-editor-page">
-      <button onClick={() => navigate('/dashboard')}>← Back</button>
-      <h2>{isNew ? 'Log New Application' : 'Edit Application'}</h2>
+      <div className="job-editor-header">
+        <h2 className="section-title">{isNew ? 'Log New Application' : 'Edit Application'}</h2>
+        <button className="btn-back" onClick={() => navigate('/dashboard')}>Back</button>
+      </div>
       <JobForm key={isNew ? 'new' : id} existingJob={job} onSaveJob={handleSave} />
     </section>
   );

@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { fetchJobs } from "./store/jobsSlice";
+import { useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchJobs, clearJobs } from "./store/jobsSlice";
+import { logout } from './store/authSlice';
 
 // Import your new modular pages
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -9,27 +10,32 @@ import JobEditor from './pages/JobEditor/JobEditor';
 import LandingPage from './pages/LandingPage/LandingPage';
 import Settings from './pages/SettingsPage/Settings';
 
-import Sidebar from './components/SideBar/Sidebar';
 import Header from './components/Header/Header';
 import BottomBar from './components/BottomBar/BottomBar';
 import './App.css';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate(); 
   const dispatch = useDispatch();
+  const { user } = useSelector(state => state.auth);
 
-  useState(() => {
-    dispatch(fetchJobs());
-  }, [dispatch]);
+  // We are authenticated if we have a user in Redux
+  const isAuthenticated = !!user;
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchJobs());
+    }
+  }, [dispatch, isAuthenticated]);
 
   const handleLogin = () => {
-    setIsAuthenticated(true);
+    // With real auth, state is updated via Redux, so just navigate
     navigate('/dashboard'); 
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    dispatch(logout());
+    dispatch(clearJobs());
     navigate('/'); 
   };
 
@@ -37,13 +43,12 @@ function App() {
     if (!isAuthenticated) return <Navigate to="/" />; 
     
     return (
-      <div className="app-layout">
-        <Sidebar onOpenModal={() => navigate('/new')} />
+      <div className="protected-wrapper">
+        <Header onLogout={handleLogout} />
         <main className="main-content">
-          <Header onLogout={handleLogout} />
           {children}
-          <BottomBar />
         </main>
+        <BottomBar />
       </div>
     );
   };

@@ -1,25 +1,64 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../../store/themeSlice';
+import { updateProfile, updatePassword } from '../../store/authSlice';
 import './Settings.css';
 
 function Settings() {
   const isDarkMode = useSelector((state) => state.theme.isDarkMode);
+  const user = useSelector((state) => state.auth.user);
   
   const dispatch = useDispatch();
 
-  const [profile, setProfile] = useState({ name: 'Alexandros Milonakis', email: 'alex@example.com' });
-  const [passwords, setPasswords] = useState({ current: '', new: '' });
+  const [profile, setProfile] = useState({ 
+    firstName: '', 
+    lastName: '',
+    email: '' 
+  });
+  
+  const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '' });
+  const [profileMessage, setProfileMessage] = useState(null);
+  const [passwordMessage, setPasswordMessage] = useState(null);
 
-  const handleProfileUpdate = (e) => {
+  useEffect(() => {
+    if (user) {
+      setProfile({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || ''
+      });
+    }
+  }, [user]);
+
+  const handleProfileUpdate = async (e) => {
     e.preventDefault();
-    alert('Profile updated successfully!');
+    setProfileMessage(null);
+    try {
+      const resultAction = await dispatch(updateProfile(profile));
+      if (updateProfile.fulfilled.match(resultAction)) {
+        setProfileMessage({ type: 'success', text: 'Profile updated successfully!' });
+      } else {
+        setProfileMessage({ type: 'error', text: resultAction.payload || 'Failed to update profile' });
+      }
+    } catch (err) {
+      setProfileMessage({ type: 'error', text: 'An unexpected error occurred' });
+    }
   };
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
-    alert('Password changed successfully!');
-    setPasswords({ current: '', new: '' }); 
+    setPasswordMessage(null);
+    try {
+      const resultAction = await dispatch(updatePassword(passwords));
+      if (updatePassword.fulfilled.match(resultAction)) {
+        setPasswordMessage({ type: 'success', text: 'Password changed successfully!' });
+        setPasswords({ currentPassword: '', newPassword: '' }); 
+      } else {
+        setPasswordMessage({ type: 'error', text: resultAction.payload || 'Failed to update password' });
+      }
+    } catch (err) {
+      setPasswordMessage({ type: 'error', text: 'An unexpected error occurred' });
+    }
   };
 
   return (
@@ -52,13 +91,27 @@ function Settings() {
         {/* Section 2: Profile Information */}
         <section className="settings-card">
           <h3>Profile Information</h3>
+          {profileMessage && (
+            <div className={`settings-message ${profileMessage.type}`}>
+              {profileMessage.text}
+            </div>
+          )}
           <form onSubmit={handleProfileUpdate} className="settings-form">
-            <label>Full Name</label>
+            <label>First Name</label>
             <input 
               type="text" 
               className="form-input" 
-              value={profile.name} 
-              onChange={(e) => setProfile({...profile, name: e.target.value})} 
+              value={profile.firstName} 
+              onChange={(e) => setProfile({...profile, firstName: e.target.value})}
+              required 
+            />
+            
+            <label>Last Name</label>
+            <input 
+              type="text" 
+              className="form-input" 
+              value={profile.lastName} 
+              onChange={(e) => setProfile({...profile, lastName: e.target.value})} 
             />
             
             <label>Email Address</label>
@@ -66,7 +119,8 @@ function Settings() {
               type="email" 
               className="form-input" 
               value={profile.email} 
-              onChange={(e) => setProfile({...profile, email: e.target.value})} 
+              onChange={(e) => setProfile({...profile, email: e.target.value})}
+              required 
             />
             
             <button type="submit" className="submit-btn outline-btn">Save Profile</button>
@@ -76,13 +130,18 @@ function Settings() {
         {/* Section 3: Change Password */}
         <section className="settings-card">
           <h3>Change Password</h3>
+          {passwordMessage && (
+            <div className={`settings-message ${passwordMessage.type}`}>
+              {passwordMessage.text}
+            </div>
+          )}
           <form onSubmit={handlePasswordChange} className="settings-form">
             <label>Current Password</label>
             <input 
               type="password" 
               className="form-input" 
-              value={passwords.current} 
-              onChange={(e) => setPasswords({...passwords, current: e.target.value})} 
+              value={passwords.currentPassword} 
+              onChange={(e) => setPasswords({...passwords, currentPassword: e.target.value})} 
               required 
             />
             
@@ -90,8 +149,8 @@ function Settings() {
             <input 
               type="password" 
               className="form-input" 
-              value={passwords.new} 
-              onChange={(e) => setPasswords({...passwords, new: e.target.value})} 
+              value={passwords.newPassword} 
+              onChange={(e) => setPasswords({...passwords, newPassword: e.target.value})} 
               required 
             />
             
