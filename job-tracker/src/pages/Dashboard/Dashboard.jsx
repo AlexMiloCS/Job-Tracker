@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import './Dashboard.css';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -22,19 +23,15 @@ export default function Dashboard() {
 
   {/* Bottom Section: Actions */}
   <div className="card-footer">
-    <button 
-      onClick={() => navigate(`/edit/${job._id}`)} 
-      className="btn-edit"
-    >
-      Edit
-    </button>
-    
-    {job.link && (
-      <a href={job.link} target="_blank" rel="noopener noreferrer" className="btn-link">
-        View Posting →
-      </a>
-    )}
-  </div>
+  {job.link && (
+    <a href={job.link} target="_blank" rel="noopener noreferrer" className="btn-link">
+      View Posting →
+    </a>
+  )}
+  <button onClick={() => navigate(`/edit/${job._id}`)} className="btn-edit">
+    Edit
+  </button>
+</div>
 </div>
         ))}
       </div>
