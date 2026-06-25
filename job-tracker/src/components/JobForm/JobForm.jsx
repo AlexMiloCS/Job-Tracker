@@ -18,8 +18,19 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
     : today;
   const [dateApplied, setDateApplied] = useState(initialDate);
   
+  const [dateInterviewing, setDateInterviewing] = useState(existingJob?.dateInterviewing ? new Date(existingJob.dateInterviewing).toISOString().split('T')[0] : '');
+  const [dateOffer, setDateOffer] = useState(existingJob?.dateOffer ? new Date(existingJob.dateOffer).toISOString().split('T')[0] : '');
+  const [dateRejected, setDateRejected] = useState(existingJob?.dateRejected ? new Date(existingJob.dateRejected).toISOString().split('T')[0] : '');
+
   const [requirements, setRequirements] = useState(existingJob?.requirements || '');
   const [notes, setNotes] = useState(existingJob?.notes || ''); 
+
+  const daysSinceApplied = Math.floor((new Date() - new Date(dateApplied)) / (1000 * 60 * 60 * 24));
+  const canBeGhosted = existingJob?.status === 'Ghosted' || daysSinceApplied >= 30;
+
+  const showDateInterviewing = status === 'Interviewing' || status === 'Offer' || !!dateInterviewing;
+  const showDateOffer = status === 'Offer' || !!dateOffer;
+  const showDateRejected = status === 'Rejected' || !!dateRejected;
 
   // Apply AI autofill data when it arrives (non-destructive: only sets fields present in the data)
   useEffect(() => {
@@ -44,6 +55,9 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
       country,
       link,
       dateApplied,
+      dateInterviewing: dateInterviewing || null,
+      dateOffer: dateOffer || null,
+      dateRejected: dateRejected || null,
       requirements,
       notes 
     };
@@ -63,6 +77,9 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
       setCountry('');
       setLink('');
       setDateApplied(today);
+      setDateInterviewing('');
+      setDateOffer('');
+      setDateRejected('');
       setRequirements('');
       setNotes(''); 
     }
@@ -99,6 +116,7 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
           <option value="Interviewing">Interviewing</option>
           <option value="Offer">Offer</option>
           <option value="Rejected">Rejected</option>
+          {canBeGhosted && <option value="Ghosted">Ghosted</option>}
         </select>
 
         <select 
@@ -129,13 +147,54 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
         />
       </div>
 
-      <input 
-        type="date" 
-        value={dateApplied} 
-        onChange={(e) => setDateApplied(e.target.value)} 
-        required 
-        className="form-input"
-      />
+      <div className="form-row">
+        <div className="form-group">
+          <label className="form-label">Date Applied</label>
+          <input 
+            type="date" 
+            value={dateApplied} 
+            onChange={(e) => setDateApplied(e.target.value)} 
+            required 
+            className="form-input"
+          />
+        </div>
+        {showDateInterviewing && (
+          <div className="form-group">
+            <label className="form-label">Date Interviewing</label>
+            <input 
+              type="date" 
+              value={dateInterviewing} 
+              onChange={(e) => setDateInterviewing(e.target.value)} 
+              className="form-input"
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="form-row">
+        {showDateOffer && (
+          <div className="form-group">
+            <label className="form-label">Date of Offer</label>
+            <input 
+              type="date" 
+              value={dateOffer} 
+              onChange={(e) => setDateOffer(e.target.value)} 
+              className="form-input"
+            />
+          </div>
+        )}
+        {showDateRejected && (
+          <div className="form-group">
+            <label className="form-label">Date Rejected</label>
+            <input 
+              type="date" 
+              value={dateRejected} 
+              onChange={(e) => setDateRejected(e.target.value)} 
+              className="form-input"
+            />
+          </div>
+        )}
+      </div>
 
       <textarea 
         placeholder="Requirements (e.g., React, TypeScript, 3+ Years Exp)" 
