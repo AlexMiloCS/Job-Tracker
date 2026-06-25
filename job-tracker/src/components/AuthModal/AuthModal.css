@@ -71,7 +71,7 @@
 
 .password-input-wrapper input {
   width: 100%;
-  padding-right: 60px; /* space for the show button */
+  padding-right: 60px;
 }
 
 .toggle-password-btn {
@@ -91,7 +91,7 @@
 }
 
 .required-asterisk {
-  color: #ef4444; /* red */
+  color: #ef4444;
   margin-left: 2px;
 }
 

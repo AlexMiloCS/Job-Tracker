@@ -6,8 +6,7 @@ import './LandingPage.css';
 function LandingPage({ onLogin }) {
   const [authModalMode, setAuthModalMode] = useState(null);
 
-  // When login completes successfully, trigger the app-level login
-  // which handles routing.
+
   const handleAuthSuccess = () => {
     setAuthModalMode(null);
     onLogin();
@@ -36,12 +35,12 @@ function LandingPage({ onLogin }) {
             Start Tracking for Free →
           </button>
         </div>
-        
+
         <div className="hero-image-container">
           {/*free stock photo*/}
-          <img 
-            src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&q=80&w=1200" 
-            alt="Workspace with computer" 
+          <img
+            src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&q=80&w=1200"
+            alt="Workspace with computer"
             className="hero-image"
           />
         </div>
@@ -49,7 +48,7 @@ function LandingPage({ onLogin }) {
 
       {/*BottomBar component*/}
       <BottomBar />
-      
+
       {authModalMode && <AuthModal initialMode={authModalMode} onClose={handleAuthSuccess} />}
     </div>
   );

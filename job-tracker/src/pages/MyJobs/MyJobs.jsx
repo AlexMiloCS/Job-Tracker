@@ -35,7 +35,8 @@ export default function MyJobs() {
     if (activeFilter.type === 'status') return job.status === activeFilter.value;
     if (activeFilter.type === 'role') return job.title === activeFilter.value;
     if (activeFilter.type === 'workModel') return job.workModel === activeFilter.value;
-    if (activeFilter.type === 'location') return (job.city || job.location) === activeFilter.value;
+    if (activeFilter.type === 'country') return job.country === activeFilter.value;
+    if (activeFilter.type === 'city') return (job.city || job.location) === activeFilter.value;
     return true;
   });
 

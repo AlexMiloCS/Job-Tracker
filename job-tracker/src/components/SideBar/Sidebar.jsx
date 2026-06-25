@@ -6,7 +6,8 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
   const [isStatusOpen, setIsStatusOpen] = useState(true);
   const [isRolesOpen, setIsRolesOpen] = useState(true);
   const [isWorkModelsOpen, setIsWorkModelsOpen] = useState(true);
-  const [isLocationsOpen, setIsLocationsOpen] = useState(true);
+  const [isCountriesOpen, setIsCountriesOpen] = useState(true);
+  const [isCitiesOpen, setIsCitiesOpen] = useState(true);
 
   // Aggregate status
   const statusMap = {};
@@ -14,8 +15,10 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
   const rolesMap = {};
   // Aggregate work models
   const workModelMap = {};
-  // Aggregate locations
-  const locationMap = {};
+  // Aggregate countries
+  const countryMap = {};
+  // Aggregate cities
+  const cityMap = {};
 
   jobs.forEach(job => {
     // Count Status
@@ -30,17 +33,22 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
     if (job.workModel) {
       workModelMap[job.workModel] = (workModelMap[job.workModel] || 0) + 1;
     }
-    // Count Locations (prefer city, fallback to old location)
-    const locKey = job.city || job.location;
-    if (locKey) {
-      locationMap[locKey] = (locationMap[locKey] || 0) + 1;
+    // Count Countries
+    if (job.country) {
+      countryMap[job.country] = (countryMap[job.country] || 0) + 1;
+    }
+    // Count Cities (prefer city, fallback to old location)
+    const cityKey = job.city || job.location;
+    if (cityKey) {
+      cityMap[cityKey] = (cityMap[cityKey] || 0) + 1;
     }
   });
 
   const statuses = Object.entries(statusMap).sort((a, b) => b[1] - a[1]);
   const roles = Object.entries(rolesMap).sort((a, b) => b[1] - a[1]);
   const workModels = Object.entries(workModelMap).sort((a, b) => b[1] - a[1]);
-  const locations = Object.entries(locationMap).sort((a, b) => b[1] - a[1]);
+  const countries = Object.entries(countryMap).sort((a, b) => b[1] - a[1]);
+  const cities = Object.entries(cityMap).sort((a, b) => b[1] - a[1]);
 
   return (
     <aside className="sidebar">
@@ -112,26 +120,55 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
         </div>
       )}
 
-      {locations.length > 0 && (
+      {countries.length > 0 && (
         <div className="sidebar-section">
           <div 
             className="sidebar-title collapsible" 
-            onClick={() => setIsLocationsOpen(!isLocationsOpen)}
+            onClick={() => setIsCountriesOpen(!isCountriesOpen)}
           >
-            By Location
-            {isLocationsOpen ? <FaChevronDown className="sidebar-icon" /> : <FaChevronRight className="sidebar-icon" />}
+            By Country
+            {isCountriesOpen ? <FaChevronDown className="sidebar-icon" /> : <FaChevronRight className="sidebar-icon" />}
           </div>
-          {isLocationsOpen && (
+          {isCountriesOpen && (
             <div className="sidebar-list">
-              {locations.map(([location, count]) => {
-                const isActive = activeFilter?.type === 'location' && activeFilter?.value === location;
+              {countries.map(([country, count]) => {
+                const isActive = activeFilter?.type === 'country' && activeFilter?.value === country;
                 return (
                   <button 
-                    key={location}
+                    key={country}
                     className={`sidebar-item ${isActive ? 'active' : ''}`}
-                    onClick={() => onSelectFilter({ type: 'location', value: location })}
+                    onClick={() => onSelectFilter({ type: 'country', value: country })}
                   >
-                    <span className="item-label" title={location}>{location}</span>
+                    <span className="item-label" title={country}>{country}</span>
+                    <span className="count-badge">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {cities.length > 0 && (
+        <div className="sidebar-section">
+          <div 
+            className="sidebar-title collapsible" 
+            onClick={() => setIsCitiesOpen(!isCitiesOpen)}
+          >
+            By City
+            {isCitiesOpen ? <FaChevronDown className="sidebar-icon" /> : <FaChevronRight className="sidebar-icon" />}
+          </div>
+          {isCitiesOpen && (
+            <div className="sidebar-list">
+              {cities.map(([city, count]) => {
+                const isActive = activeFilter?.type === 'city' && activeFilter?.value === city;
+                return (
+                  <button 
+                    key={city}
+                    className={`sidebar-item ${isActive ? 'active' : ''}`}
+                    onClick={() => onSelectFilter({ type: 'city', value: city })}
+                  >
+                    <span className="item-label" title={city}>{city}</span>
                     <span className="count-badge">{count}</span>
                   </button>
                 );
