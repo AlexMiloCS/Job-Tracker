@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FaChartBar, FaChartPie, FaChartLine } from 'react-icons/fa';
 import FunnelAnalytics from '../../components/FunnelAnalytics/FunnelAnalytics';
+import StatusBreakdown from '../../components/StatusBreakdown/StatusBreakdown';
 import './Analytics.css';
 
 export default function Analytics() {
@@ -19,12 +20,11 @@ export default function Analytics() {
             Hiring Funnel
           </button>
           <button 
-            className={`analytics-sidebar-nav-item disabled`}
-            disabled
-            title="Coming Soon"
+            className={`analytics-sidebar-nav-item ${activeTab === 'status' ? 'active' : ''}`}
+            onClick={() => setActiveTab('status')}
           >
             <FaChartPie className="analytics-sidebar-icon" />
-            Time to Hire
+            Status Breakdown
           </button>
           <button 
             className={`analytics-sidebar-nav-item disabled`}
@@ -45,6 +45,7 @@ export default function Analytics() {
 
         <div className="analytics-grid">
           {activeTab === 'funnel' && <FunnelAnalytics />}
+          {activeTab === 'status' && <StatusBreakdown />}
           {/* Future widgets can go here based on activeTab */}
         </div>
       </section>

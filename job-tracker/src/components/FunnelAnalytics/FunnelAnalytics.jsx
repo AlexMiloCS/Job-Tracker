@@ -6,6 +6,7 @@ import './FunnelAnalytics.css';
 
 export default function FunnelAnalytics() {
   const { items: jobs } = useSelector((state) => state.jobs);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
   const [viewMode, setViewMode] = useState('funnel');
 
   // 1. Data Aggregation (Cumulative Funnel)
@@ -143,9 +144,9 @@ export default function FunnelAnalytics() {
           <div style={{ width: '100%', height: 350 }}>
             <ResponsiveContainer>
               <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <XAxis dataKey="name" stroke="#cbd5e1" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#cbd5e1" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+                <XAxis dataKey="name" stroke={isDarkMode ? "#cbd5e1" : "#475569"} fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke={isDarkMode ? "#cbd5e1" : "#475569"} fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }} />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
