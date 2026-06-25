@@ -88,12 +88,11 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
         className="form-input"
       />
       
-      <div style={{ display: 'flex', gap: '10px' }}>
+      <div className="form-row">
         <select 
           value={status} 
           onChange={(e) => setStatus(e.target.value)}
           className="form-input"
-          style={{ flex: 1 }}
         >
           <option value="Saved">Saved</option>
           <option value="Applied">Applied</option>
@@ -106,7 +105,6 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
           value={workModel} 
           onChange={(e) => setWorkModel(e.target.value)}
           className="form-input"
-          style={{ flex: 1 }}
         >
           <option value="Remote">Remote</option>
           <option value="Hybrid">Hybrid</option>
@@ -114,22 +112,20 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
         </select>
       </div>
 
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <input 
-          type="text" 
-          placeholder="City" 
-          value={city} 
-          onChange={(e) => setCity(e.target.value)} 
-          className="form-input"
-          style={{ flex: 1 }}
-        />
+      <div className="form-row">
         <input 
           type="text" 
           placeholder="Country" 
           value={country} 
           onChange={(e) => setCountry(e.target.value)} 
           className="form-input"
-          style={{ flex: 1 }}
+        />
+        <input 
+          type="text" 
+          placeholder="City" 
+          value={city} 
+          onChange={(e) => setCity(e.target.value)} 
+          className="form-input"
         />
       </div>
 

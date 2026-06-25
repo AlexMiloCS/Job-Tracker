@@ -12,7 +12,9 @@ const jobSchema = new mongoose.Schema({
   dateApplied: { type: Date, default: Date.now },
   requirements: { type: String },
   notes: { type: String },
-  link: { type: String }
+  link: { type: String },
+  clusterId: { type: Number },
+  clusterLabel: { type: String }
 });
 
 const Job = mongoose.model('Job', jobSchema);

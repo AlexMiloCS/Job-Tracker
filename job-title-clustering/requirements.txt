@@ -1,0 +1,6 @@
+sentence-transformers
+scikit-learn
+pymongo[srv]
+python-dotenv
+flask
+flask-cors

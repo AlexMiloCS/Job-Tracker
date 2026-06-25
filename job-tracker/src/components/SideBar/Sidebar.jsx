@@ -1,18 +1,27 @@
 import { useState } from 'react';
-import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import { useDispatch } from 'react-redux';
+import { FaChevronDown, FaChevronRight, FaSyncAlt, FaMagic, FaPen, FaCheck, FaTimes } from 'react-icons/fa';
+import { reclusterJobs, autoNameClusters, renameCluster } from '../../store/jobsSlice';
 import './Sidebar.css';
 
 export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
+  const dispatch = useDispatch();
+
   const [isStatusOpen, setIsStatusOpen] = useState(true);
-  const [isRolesOpen, setIsRolesOpen] = useState(true);
+  const [isClustersOpen, setIsClustersOpen] = useState(true);
   const [isWorkModelsOpen, setIsWorkModelsOpen] = useState(true);
   const [isCountriesOpen, setIsCountriesOpen] = useState(true);
   const [isCitiesOpen, setIsCitiesOpen] = useState(true);
 
+  const [isReclustering, setIsReclustering] = useState(false);
+  const [isAutoNaming, setIsAutoNaming] = useState(false);
+  const [editingClusterId, setEditingClusterId] = useState(null);
+  const [editLabel, setEditLabel] = useState('');
+
   // Aggregate status
   const statusMap = {};
-  // Aggregate roles
-  const rolesMap = {};
+  // Aggregate clusters (replaces old roles)
+  const clusterMap = {};
   // Aggregate work models
   const workModelMap = {};
   // Aggregate countries
@@ -25,9 +34,12 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
     if (job.status) {
       statusMap[job.status] = (statusMap[job.status] || 0) + 1;
     }
-    // Count Roles
-    if (job.title) {
-      rolesMap[job.title] = (rolesMap[job.title] || 0) + 1;
+    // Count Clusters
+    if (job.clusterLabel) {
+      if (!clusterMap[job.clusterLabel]) {
+        clusterMap[job.clusterLabel] = { count: 0, clusterId: job.clusterId };
+      }
+      clusterMap[job.clusterLabel].count += 1;
     }
     // Count Work Models
     if (job.workModel) {
@@ -45,10 +57,51 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
   });
 
   const statuses = Object.entries(statusMap).sort((a, b) => b[1] - a[1]);
-  const roles = Object.entries(rolesMap).sort((a, b) => b[1] - a[1]);
+  const clusters = Object.entries(clusterMap).sort((a, b) => b[1].count - a[1].count);
   const workModels = Object.entries(workModelMap).sort((a, b) => b[1] - a[1]);
   const countries = Object.entries(countryMap).sort((a, b) => b[1] - a[1]);
   const cities = Object.entries(cityMap).sort((a, b) => b[1] - a[1]);
+
+  // Check if any jobs have cluster data
+  const hasClusters = clusters.length > 0;
+  // Check if there are any unnamed clusters (i.e. starts with 'Cluster ')
+  const hasUnnamedClusters = clusters.some(([label]) => label.startsWith('Cluster '));
+
+  const handleRecluster = async () => {
+    setIsReclustering(true);
+    try {
+      await dispatch(reclusterJobs()).unwrap();
+    } catch (err) {
+      console.error('Recluster failed:', err);
+    }
+    setIsReclustering(false);
+  };
+
+  const handleAutoName = async () => {
+    setIsAutoNaming(true);
+    try {
+      await dispatch(autoNameClusters()).unwrap();
+    } catch (err) {
+      console.error('Auto-name failed:', err);
+    }
+    setIsAutoNaming(false);
+  };
+
+  const handleRenameSubmit = async (clusterId) => {
+    if (!editLabel.trim()) return;
+    try {
+      await dispatch(renameCluster({ clusterId, newLabel: editLabel.trim() })).unwrap();
+    } catch (err) {
+      console.error('Rename failed:', err);
+    }
+    setEditingClusterId(null);
+    setEditLabel('');
+  };
+
+  const startEditing = (clusterId, currentLabel) => {
+    setEditingClusterId(clusterId);
+    setEditLabel(currentLabel);
+  };
 
   return (
     <aside className="sidebar">
@@ -178,34 +231,104 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
         </div>
       )}
 
-      {roles.length > 0 && (
-        <div className="sidebar-section">
-          <div 
-            className="sidebar-title collapsible" 
-            onClick={() => setIsRolesOpen(!isRolesOpen)}
-          >
-            By Role
-            {isRolesOpen ? <FaChevronDown className="sidebar-icon" /> : <FaChevronRight className="sidebar-icon" />}
-          </div>
-          {isRolesOpen && (
-            <div className="sidebar-list">
-              {roles.map(([role, count]) => {
-                const isActive = activeFilter?.type === 'role' && activeFilter?.value === role;
-                return (
-                  <button 
-                    key={role}
-                    className={`sidebar-item ${isActive ? 'active' : ''}`}
-                    onClick={() => onSelectFilter({ type: 'role', value: role })}
-                  >
-                    <span className="item-label" title={role}>{role}</span>
-                    <span className="count-badge">{count}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+      {/* Cluster Section (replaces old "By Role") */}
+      <div className="sidebar-section">
+        <div 
+          className="sidebar-title collapsible" 
+          onClick={() => setIsClustersOpen(!isClustersOpen)}
+        >
+          By Role
+          {isClustersOpen ? <FaChevronDown className="sidebar-icon" /> : <FaChevronRight className="sidebar-icon" />}
         </div>
-      )}
+        {isClustersOpen && (
+          <div className="sidebar-list">
+            {/* Action buttons */}
+            <div className="cluster-actions">
+              <button
+                className="cluster-action-btn"
+                onClick={handleRecluster}
+                disabled={isReclustering || jobs.length < 2}
+                title="Re-analyze and group your job titles"
+              >
+                <FaSyncAlt className={isReclustering ? 'spin' : ''} />
+                {isReclustering ? 'Clustering...' : 'Re-cluster'}
+              </button>
+              {hasClusters && (
+                <button
+                  className="cluster-action-btn"
+                  onClick={handleAutoName}
+                  disabled={isAutoNaming || !hasUnnamedClusters}
+                  title={hasUnnamedClusters ? "Use AI to generate cluster names" : "All clusters are already named"}
+                >
+                  <FaMagic className={isAutoNaming ? 'spin' : ''} />
+                  {isAutoNaming ? 'Naming...' : 'AI Name'}
+                </button>
+              )}
+            </div>
+
+            {hasClusters ? (
+              clusters.map(([label, { count, clusterId }]) => {
+                const isActive = activeFilter?.type === 'cluster' && activeFilter?.value === label;
+                const isEditing = editingClusterId === clusterId;
+
+                return (
+                  <div key={`cluster-${clusterId}`} className="cluster-item-row">
+                    {isEditing ? (
+                      <div className="cluster-edit-row">
+                        <input
+                          type="text"
+                          value={editLabel}
+                          onChange={(e) => setEditLabel(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleRenameSubmit(clusterId);
+                            if (e.key === 'Escape') setEditingClusterId(null);
+                          }}
+                          className="cluster-rename-input"
+                          autoFocus
+                        />
+                        <button
+                          className="cluster-edit-btn confirm"
+                          onClick={() => handleRenameSubmit(clusterId)}
+                        >
+                          <FaCheck />
+                        </button>
+                        <button
+                          className="cluster-edit-btn cancel"
+                          onClick={() => setEditingClusterId(null)}
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    ) : (
+                      <button 
+                        className={`sidebar-item ${isActive ? 'active' : ''}`}
+                        onClick={() => onSelectFilter({ type: 'cluster', value: label })}
+                      >
+                        <span className="item-label" title={label}>{label}</span>
+                        <span className="cluster-item-right">
+                          <span className="count-badge">{count}</span>
+                          <FaPen
+                            className="rename-icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEditing(clusterId, label);
+                            }}
+                            title="Rename cluster"
+                          />
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <p className="cluster-hint">
+                Click "Re-cluster" to group your job titles by similarity.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
     </aside>
   );
 }

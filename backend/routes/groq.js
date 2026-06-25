@@ -67,8 +67,8 @@ Return ONLY a valid JSON object with these fields (omit any field you cannot con
 - "company": string — the company name
 - "title": string — the job title / role name
 - "workModel": string — MUST be exactly one of: "Remote", "Hybrid", "On-site"
-- "city": string — the city where the job is located
 - "country": string — the country where the job is located
+- "city": string — the city where the job is located. DO NOT put the country here. If the city is not explicitly stated, omit this field entirely.
 - "requirements": string — a concise comma-separated list of key skills, technologies, and experience requirements
 
 Rules:
@@ -96,7 +96,13 @@ Rules:
     // Parse the LLM's JSON response
     let parsedJob;
     try {
-      parsedJob = JSON.parse(choice.message.content);
+      let content = choice.message.content.trim();
+      if (content.startsWith('```json')) {
+        content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      } else if (content.startsWith('```')) {
+        content = content.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      }
+      parsedJob = JSON.parse(content);
     } catch (parseError) {
       console.error('Failed to parse LLM JSON:', choice.message.content);
       return res.status(502).json({ error: 'LLM returned invalid JSON. Please try again.' });

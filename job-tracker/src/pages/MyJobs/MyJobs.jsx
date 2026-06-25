@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { deleteJob } from '../../store/jobsSlice';
-import { FaLaptop, FaBuilding } from 'react-icons/fa';
+import { FaLaptop, FaBuilding, FaSearch, FaTimes } from 'react-icons/fa';
 import Sidebar from '../../components/SideBar/Sidebar';
 import './MyJobs.css';
 
@@ -16,11 +16,13 @@ export default function MyJobs() {
   const [activeFilter, setActiveFilter] = useState(null);
   const [sortBy, setSortBy] = useState('latest');
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // Reset page when filter or sort changes
+  // Reset page when filter, sort, search, or items per page changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeFilter, sortBy]);
+  }, [activeFilter, sortBy, searchQuery, itemsPerPage]);
 
   const confirmDelete = () => {
     if (jobToDelete) {
@@ -31,12 +33,34 @@ export default function MyJobs() {
 
   // Filter jobs
   const filteredJobs = jobs.filter(job => {
-    if (!activeFilter) return true;
-    if (activeFilter.type === 'status') return job.status === activeFilter.value;
-    if (activeFilter.type === 'role') return job.title === activeFilter.value;
-    if (activeFilter.type === 'workModel') return job.workModel === activeFilter.value;
-    if (activeFilter.type === 'country') return job.country === activeFilter.value;
-    if (activeFilter.type === 'city') return (job.city || job.location) === activeFilter.value;
+    // 1. Filter by Sidebar selection
+    if (activeFilter) {
+      if (activeFilter.type === 'status' && job.status !== activeFilter.value) return false;
+      if (activeFilter.type === 'cluster' && job.clusterLabel !== activeFilter.value) return false;
+      if (activeFilter.type === 'workModel' && job.workModel !== activeFilter.value) return false;
+      if (activeFilter.type === 'country' && job.country !== activeFilter.value) return false;
+      if (activeFilter.type === 'city' && (job.city || job.location) !== activeFilter.value) return false;
+    }
+    
+    // 2. Filter by Deep Search Query
+    if (searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase();
+      // Combine all meaningful fields into one searchable string
+      const searchableText = [
+        job.title,
+        job.company,
+        job.location,
+        job.city,
+        job.country,
+        job.workModel,
+        job.status,
+        job.requirements,
+        job.notes
+      ].filter(Boolean).join(' ').toLowerCase();
+      
+      if (!searchableText.includes(query)) return false;
+    }
+
     return true;
   });
 
@@ -46,13 +70,30 @@ export default function MyJobs() {
       return a.company.localeCompare(b.company);
     } else if (sortBy === 'oldest') {
       return new Date(a.dateApplied) - new Date(b.dateApplied);
+    } else if (sortBy === 'status') {
+      const statusOrder = {
+        'Offer': 1,
+        'Interviewing': 2,
+        'Applied': 3,
+        'Saved': 4,
+        'Rejected': 5
+      };
+      
+      const orderA = statusOrder[a.status] || 99;
+      const orderB = statusOrder[b.status] || 99;
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      // Fallback to latest if statuses are the same
+      return new Date(b.dateApplied) - new Date(a.dateApplied);
     } else { // 'latest'
       return new Date(b.dateApplied) - new Date(a.dateApplied);
     }
   });
 
   // Paginate jobs
-  const jobsPerPage = 10;
+  const jobsPerPage = itemsPerPage;
   const totalPages = Math.ceil(sortedJobs.length / jobsPerPage);
   const startIndex = (currentPage - 1) * jobsPerPage;
   const displayedJobs = sortedJobs.slice(startIndex, startIndex + jobsPerPage);
@@ -81,6 +122,18 @@ export default function MyJobs() {
               <option value="latest">Latest</option>
               <option value="oldest">Oldest</option>
               <option value="a-z">A-Z</option>
+              <option value="status">Status</option>
+            </select>
+            <select
+              className="sort-dropdown"
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              title="Items per page"
+            >
+              <option value={10}>10 per page</option>
+              <option value={20}>20 per page</option>
+              <option value={50}>50 per page</option>
+              <option value={1000}>Show All</option>
             </select>
             <button className="new-job-btn" onClick={() => navigate('/new')}>
               + New Job
@@ -88,6 +141,22 @@ export default function MyJobs() {
           </div>
         </div>
         
+        <div className="search-container">
+          <FaSearch className="search-icon" />
+          <input 
+            type="text" 
+            className="search-input" 
+            placeholder="Search by title, company, skills, or notes..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button className="search-clear-btn" onClick={() => setSearchQuery('')} title="Clear search">
+              <FaTimes />
+            </button>
+          )}
+        </div>
+
         {status === 'loading' && <p>Loading your applications...</p>}
         {status === 'failed' && <p className="error-text">Error: {error}</p>}
 

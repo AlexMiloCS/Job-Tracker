@@ -4,7 +4,15 @@
   gap: 12px;
 }
 
+.form-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
 .form-input {
+  width: 100%;
+  box-sizing: border-box;
   padding: 10px 12px;
   background-color: var(--bg-main);
   color: var(--text-primary);
@@ -36,8 +44,17 @@
   cursor: pointer;
   margin-top: 5px;
   transition: background-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .submit-btn:hover {
   background-color: var(--primary-hover);
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
 }

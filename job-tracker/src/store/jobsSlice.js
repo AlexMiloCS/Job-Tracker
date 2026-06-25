@@ -79,6 +79,67 @@ export const deleteJob = createAsyncThunk(
   }
 );
 
+export const reclusterJobs = createAsyncThunk(
+  'jobs/reclusterJobs',
+  async ({ autoName = false } = {}, { getState, rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_URL}/cluster/recluster`, {
+        method: 'POST',
+        headers: getAuthHeaders(getState),
+        body: JSON.stringify({ autoName }),
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to recluster');
+      }
+      const data = await response.json();
+      return data.jobs;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const autoNameClusters = createAsyncThunk(
+  'jobs/autoNameClusters',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_URL}/cluster/auto-name`, {
+        method: 'POST',
+        headers: getAuthHeaders(getState),
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to auto-name clusters');
+      }
+      const data = await response.json();
+      return data.jobs;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const renameCluster = createAsyncThunk(
+  'jobs/renameCluster',
+  async ({ clusterId, newLabel }, { getState, rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_URL}/cluster/rename`, {
+        method: 'POST',
+        headers: getAuthHeaders(getState),
+        body: JSON.stringify({ clusterId, newLabel }),
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to rename cluster');
+      }
+      return { clusterId, newLabel };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const jobsSlice = createSlice({
   name: 'jobs',
   initialState: {
@@ -116,6 +177,20 @@ export const jobsSlice = createSlice({
       })
       .addCase(deleteJob.fulfilled, (state, action) => {
         state.items = state.items.filter(job => job._id !== action.payload);
+      })
+      .addCase(reclusterJobs.fulfilled, (state, action) => {
+        state.items = action.payload;
+      })
+      .addCase(autoNameClusters.fulfilled, (state, action) => {
+        state.items = action.payload;
+      })
+      .addCase(renameCluster.fulfilled, (state, action) => {
+        const { clusterId, newLabel } = action.payload;
+        state.items.forEach(job => {
+          if (job.clusterId === clusterId) {
+            job.clusterLabel = newLabel;
+          }
+        });
       }); 
   }
 });

@@ -8,6 +8,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { requireAuth } from './middleware/auth.js';
 import groqRoutes from './routes/groq.js';
+import clusterRoutes from './routes/cluster.js';
 
 dotenv.config();
 
@@ -19,6 +20,11 @@ app.use(express.json());
 
 // Groq LLM routes
 app.use('/api/groq', groqRoutes);
+
+// Clustering routes
+app.use('/api/cluster', clusterRoutes);
+
+const FLASK_URL = process.env.FLASK_CLUSTER_URL || 'http://localhost:5001';
 
 const connectDB = async () => {
   try {
@@ -152,6 +158,39 @@ app.post('/api/jobs', requireAuth, async (req, res) => {
   try {
     const newJob = new Job({ ...req.body, userId: req.userId });
     await newJob.save();
+
+    // Auto-assign cluster if Flask service is running and title exists
+    if (newJob.title) {
+      try {
+        const flaskRes = await fetch(`${FLASK_URL}/assign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: newJob.title }),
+        });
+        if (flaskRes.ok) {
+          const { clusterId, clusterLabel } = await flaskRes.json();
+          newJob.clusterId = clusterId;
+          
+          // Check if the user has already renamed this cluster (manually or via AI)
+          // We do this by finding any existing job with the same clusterId
+          const existingJobInCluster = await Job.findOne({ 
+            userId: req.userId, 
+            clusterId: clusterId 
+          });
+
+          if (existingJobInCluster && existingJobInCluster.clusterLabel) {
+            newJob.clusterLabel = existingJobInCluster.clusterLabel;
+          } else {
+            newJob.clusterLabel = clusterLabel;
+          }
+          
+          await newJob.save();
+        }
+      } catch {
+        // Flask not running — skip auto-assign silently
+      }
+    }
+
     res.status(201).json(newJob);
   } catch (error) {
     res.status(400).json({ error: error.message });
