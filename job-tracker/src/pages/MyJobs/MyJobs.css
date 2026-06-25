@@ -160,9 +160,14 @@
   color: #1e40af;
 }
 
-.status-interviewing {
+.status-phone-screen {
   background-color: #fef3c7;
   color: #b45309;
+}
+
+.status-technical {
+  background-color: #e0e7ff;
+  color: #4338ca;
 }
 
 .status-offer {

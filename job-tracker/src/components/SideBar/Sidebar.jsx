@@ -1,11 +1,20 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { FaChevronDown, FaChevronRight, FaSyncAlt, FaMagic, FaPen, FaCheck, FaTimes } from 'react-icons/fa';
-import { reclusterJobs, autoNameClusters, renameCluster } from '../../store/jobsSlice';
+import { reclusterJobs, autoNameClusters, renameCluster, toggleFilter, clearFilters } from '../../store/jobsSlice';
 import './Sidebar.css';
 
-export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
+export default function Sidebar({ jobs }) {
   const dispatch = useDispatch();
+  const { activeFilters } = useSelector((state) => state.jobs);
+
+  const handleSelectFilter = (type, value) => {
+    dispatch(toggleFilter({ type, value }));
+  };
+
+  const isActiveFilter = (type, value) => {
+    return activeFilters.some(f => f.type === type && f.value === value);
+  };
 
   const [isStatusOpen, setIsStatusOpen] = useState(true);
   const [isClustersOpen, setIsClustersOpen] = useState(true);
@@ -107,8 +116,8 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
     <aside className="sidebar">
       <div className="sidebar-section">
         <button 
-          className={`sidebar-item ${!activeFilter ? 'active' : ''}`}
-          onClick={() => onSelectFilter(null)}
+          className={`sidebar-item ${activeFilters.length === 0 ? 'active' : ''}`}
+          onClick={() => dispatch(clearFilters())}
         >
           All Jobs
           <span className="count-badge">{jobs.length}</span>
@@ -127,12 +136,12 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
           {isStatusOpen && (
             <div className="sidebar-list">
               {statuses.map(([status, count]) => {
-                const isActive = activeFilter?.type === 'status' && activeFilter?.value === status;
+                const isActive = isActiveFilter('status', status);
                 return (
                   <button 
                     key={status}
                     className={`sidebar-item ${isActive ? 'active' : ''}`}
-                    onClick={() => onSelectFilter({ type: 'status', value: status })}
+                    onClick={() => handleSelectFilter('status', status)}
                   >
                     <span className="item-label" title={status}>{status}</span>
                     <span className="count-badge">{count}</span>
@@ -156,12 +165,12 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
           {isWorkModelsOpen && (
             <div className="sidebar-list">
               {workModels.map(([model, count]) => {
-                const isActive = activeFilter?.type === 'workModel' && activeFilter?.value === model;
+                const isActive = isActiveFilter('workModel', model);
                 return (
                   <button 
                     key={model}
                     className={`sidebar-item ${isActive ? 'active' : ''}`}
-                    onClick={() => onSelectFilter({ type: 'workModel', value: model })}
+                    onClick={() => handleSelectFilter('workModel', model)}
                   >
                     <span className="item-label">{model}</span>
                     <span className="count-badge">{count}</span>
@@ -185,12 +194,12 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
           {isCountriesOpen && (
             <div className="sidebar-list">
               {countries.map(([country, count]) => {
-                const isActive = activeFilter?.type === 'country' && activeFilter?.value === country;
+                const isActive = isActiveFilter('country', country);
                 return (
                   <button 
                     key={country}
                     className={`sidebar-item ${isActive ? 'active' : ''}`}
-                    onClick={() => onSelectFilter({ type: 'country', value: country })}
+                    onClick={() => handleSelectFilter('country', country)}
                   >
                     <span className="item-label" title={country}>{country}</span>
                     <span className="count-badge">{count}</span>
@@ -214,12 +223,12 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
           {isCitiesOpen && (
             <div className="sidebar-list">
               {cities.map(([city, count]) => {
-                const isActive = activeFilter?.type === 'city' && activeFilter?.value === city;
+                const isActive = isActiveFilter('city', city);
                 return (
                   <button 
                     key={city}
                     className={`sidebar-item ${isActive ? 'active' : ''}`}
-                    onClick={() => onSelectFilter({ type: 'city', value: city })}
+                    onClick={() => handleSelectFilter('city', city)}
                   >
                     <span className="item-label" title={city}>{city}</span>
                     <span className="count-badge">{count}</span>
@@ -268,7 +277,7 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
 
             {hasClusters ? (
               clusters.map(([label, { count, clusterId }]) => {
-                const isActive = activeFilter?.type === 'cluster' && activeFilter?.value === label;
+                const isActive = isActiveFilter('cluster', label);
                 const isEditing = editingClusterId === clusterId;
 
                 return (
@@ -302,7 +311,7 @@ export default function Sidebar({ jobs, activeFilter, onSelectFilter }) {
                     ) : (
                       <button 
                         className={`sidebar-item ${isActive ? 'active' : ''}`}
-                        onClick={() => onSelectFilter({ type: 'cluster', value: label })}
+                        onClick={() => handleSelectFilter('cluster', label)}
                       >
                         <span className="item-label" title={label}>{label}</span>
                         <span className="cluster-item-right">

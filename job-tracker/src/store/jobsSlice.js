@@ -145,12 +145,26 @@ export const jobsSlice = createSlice({
   initialState: {
     items: [], 
     status: 'idle', 
-    error: null
+    error: null,
+    activeFilters: []
   },
   reducers: {
     clearJobs: (state) => {
       state.items = [];
       state.status = 'idle';
+      state.activeFilters = [];
+    },
+    toggleFilter: (state, action) => {
+      const { type, value } = action.payload;
+      const index = state.activeFilters.findIndex(f => f.type === type && f.value === value);
+      if (index === -1) {
+        state.activeFilters.push({ type, value });
+      } else {
+        state.activeFilters.splice(index, 1);
+      }
+    },
+    clearFilters: (state) => {
+      state.activeFilters = [];
     }
   },
   extraReducers: (builder) => {
@@ -195,5 +209,5 @@ export const jobsSlice = createSlice({
   }
 });
 
-export const { clearJobs } = jobsSlice.actions;
+export const { clearJobs, toggleFilter, clearFilters } = jobsSlice.actions;
 export default jobsSlice.reducer;

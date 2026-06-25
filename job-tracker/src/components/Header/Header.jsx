@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import NotificationBell from '../NotificationBell/NotificationBell';
 import './Header.css';
 
 function Header({ onLogout }) {
@@ -33,6 +34,7 @@ function Header({ onLogout }) {
       </nav>
 
       <div className="header-actions">
+        <NotificationBell />
         <button className="auth-btn login-btn" onClick={onLogout}>
           Log Out
         </button>

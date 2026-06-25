@@ -9,11 +9,10 @@ import './MyJobs.css';
 export default function MyJobs() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { items: jobs, status, error } = useSelector((state) => state.jobs);
+  const { items: jobs, status, error, activeFilters } = useSelector((state) => state.jobs);
   
   const [jobToDelete, setJobToDelete] = useState(null);
   const [jobToView, setJobToView] = useState(null);
-  const [activeFilter, setActiveFilter] = useState(null);
   const [sortBy, setSortBy] = useState('latest');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,7 +21,7 @@ export default function MyJobs() {
   // Reset page when filter, sort, search, or items per page changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeFilter, sortBy, searchQuery, itemsPerPage]);
+  }, [activeFilters, sortBy, searchQuery, itemsPerPage]);
 
   const confirmDelete = () => {
     if (jobToDelete) {
@@ -33,13 +32,31 @@ export default function MyJobs() {
 
   // Filter jobs
   const filteredJobs = jobs.filter(job => {
-    // 1. Filter by Sidebar selection
-    if (activeFilter) {
-      if (activeFilter.type === 'status' && job.status !== activeFilter.value) return false;
-      if (activeFilter.type === 'cluster' && job.clusterLabel !== activeFilter.value) return false;
-      if (activeFilter.type === 'workModel' && job.workModel !== activeFilter.value) return false;
-      if (activeFilter.type === 'country' && job.country !== activeFilter.value) return false;
-      if (activeFilter.type === 'city' && (job.city || job.location) !== activeFilter.value) return false;
+    // 1. Filter by activeFilters (AND between types, OR within types)
+    if (activeFilters && activeFilters.length > 0) {
+      const filtersByType = activeFilters.reduce((acc, filter) => {
+        if (!acc[filter.type]) acc[filter.type] = [];
+        acc[filter.type].push(filter.value);
+        return acc;
+      }, {});
+
+      for (const [type, values] of Object.entries(filtersByType)) {
+        let matches = false;
+        if (type === 'status') {
+          matches = values.includes(job.status);
+        } else if (type === 'cluster') {
+          matches = values.includes(job.clusterLabel);
+        } else if (type === 'workModel') {
+          matches = values.includes(job.workModel);
+        } else if (type === 'country') {
+          matches = values.includes(job.country);
+        } else if (type === 'city') {
+          const cityKey = job.city || job.location;
+          matches = values.includes(cityKey);
+        }
+        
+        if (!matches) return false;
+      }
     }
     
     // 2. Filter by Deep Search Query
@@ -73,10 +90,12 @@ export default function MyJobs() {
     } else if (sortBy === 'status') {
       const statusOrder = {
         'Offer': 1,
-        'Interviewing': 2,
-        'Applied': 3,
-        'Saved': 4,
-        'Rejected': 5
+        'Technical': 2,
+        'Phone Screen': 3,
+        'Applied': 4,
+        'Saved': 5,
+        'Rejected': 6,
+        'Ghosted': 7
       };
       
       const orderA = statusOrder[a.status] || 99;
@@ -98,17 +117,13 @@ export default function MyJobs() {
   const startIndex = (currentPage - 1) * jobsPerPage;
   const displayedJobs = sortedJobs.slice(startIndex, startIndex + jobsPerPage);
 
-  const pageTitle = activeFilter 
-    ? `${activeFilter.value} Jobs`
+  const pageTitle = activeFilters && activeFilters.length > 0
+    ? `Filtered Jobs`
     : 'All Jobs';
 
   return (
     <div className="my-jobs-layout">
-      <Sidebar 
-        jobs={jobs} 
-        activeFilter={activeFilter} 
-        onSelectFilter={setActiveFilter} 
-      />
+      <Sidebar jobs={jobs} />
       
       <section className="my-jobs-content">
         <div className="dashboard-header">
@@ -174,7 +189,7 @@ export default function MyJobs() {
               {/* Middle Section: Meta & Details */}
               <div className="card-details">
                 <div className="job-meta">
-                  {job.status && <span className={`status-badge status-${job.status.toLowerCase()}`}>{job.status}</span>}
+                  {job.status && <span className={`status-badge status-${job.status.toLowerCase().replace(/\s+/g, '-')}`}>{job.status}</span>}
                   {job.workModel && (
                     <span className="work-model-badge" style={{ display: 'inline-flex', alignItems: 'center' }}>
                       {job.workModel === 'Remote' && <FaLaptop style={{ marginRight: '5px' }} />}
@@ -277,7 +292,7 @@ export default function MyJobs() {
               <h3 className="card-title" style={{ marginBottom: '20px' }}>{jobToView.title}</h3>
               
               <div className="job-meta" style={{ marginBottom: '20px', justifyContent: 'center' }}>
-                <span className={`status-badge status-${jobToView.status.toLowerCase()}`}>{jobToView.status}</span>
+                <span className={`status-badge status-${jobToView.status.toLowerCase().replace(/\s+/g, '-')}`}>{jobToView.status}</span>
                 <span className="work-model-badge">{jobToView.workModel}</span>
                 {(jobToView.city || jobToView.country || jobToView.location) && (
                   <span className="location-badge">
@@ -290,6 +305,16 @@ export default function MyJobs() {
                 {jobToView.dateApplied && (
                   <p style={{ margin: '5px 0', color: 'var(--text-secondary)' }}>
                     <strong>Date Applied:</strong> {new Date(jobToView.dateApplied).toLocaleDateString()}
+                  </p>
+                )}
+                {jobToView.datePhoneScreen && (
+                  <p style={{ margin: '5px 0', color: 'var(--text-secondary)' }}>
+                    <strong>Phone Screen:</strong> {new Date(jobToView.datePhoneScreen).toLocaleDateString()}
+                  </p>
+                )}
+                {jobToView.dateTechnical && (
+                  <p style={{ margin: '5px 0', color: 'var(--text-secondary)' }}>
+                    <strong>Technical Interview:</strong> {new Date(jobToView.dateTechnical).toLocaleDateString()}
                   </p>
                 )}
                 {jobToView.requirements && (

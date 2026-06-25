@@ -18,7 +18,8 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
     : today;
   const [dateApplied, setDateApplied] = useState(initialDate);
   
-  const [dateInterviewing, setDateInterviewing] = useState(existingJob?.dateInterviewing ? new Date(existingJob.dateInterviewing).toISOString().split('T')[0] : '');
+  const [datePhoneScreen, setDatePhoneScreen] = useState(existingJob?.datePhoneScreen ? new Date(existingJob.datePhoneScreen).toISOString().split('T')[0] : '');
+  const [dateTechnical, setDateTechnical] = useState(existingJob?.dateTechnical ? new Date(existingJob.dateTechnical).toISOString().split('T')[0] : '');
   const [dateOffer, setDateOffer] = useState(existingJob?.dateOffer ? new Date(existingJob.dateOffer).toISOString().split('T')[0] : '');
   const [dateRejected, setDateRejected] = useState(existingJob?.dateRejected ? new Date(existingJob.dateRejected).toISOString().split('T')[0] : '');
 
@@ -28,7 +29,8 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
   const daysSinceApplied = Math.floor((new Date() - new Date(dateApplied)) / (1000 * 60 * 60 * 24));
   const canBeGhosted = existingJob?.status === 'Ghosted' || daysSinceApplied >= 30;
 
-  const showDateInterviewing = status === 'Interviewing' || status === 'Offer' || !!dateInterviewing;
+  const showDatePhoneScreen = status === 'Phone Screen' || status === 'Technical' || status === 'Offer' || !!datePhoneScreen;
+  const showDateTechnical = status === 'Technical' || status === 'Offer' || !!dateTechnical;
   const showDateOffer = status === 'Offer' || !!dateOffer;
   const showDateRejected = status === 'Rejected' || !!dateRejected;
 
@@ -55,7 +57,8 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
       country,
       link,
       dateApplied,
-      dateInterviewing: dateInterviewing || null,
+      datePhoneScreen: datePhoneScreen || null,
+      dateTechnical: dateTechnical || null,
       dateOffer: dateOffer || null,
       dateRejected: dateRejected || null,
       requirements,
@@ -77,7 +80,8 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
       setCountry('');
       setLink('');
       setDateApplied(today);
-      setDateInterviewing('');
+      setDatePhoneScreen('');
+      setDateTechnical('');
       setDateOffer('');
       setDateRejected('');
       setRequirements('');
@@ -113,7 +117,8 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
         >
           <option value="Saved">Saved</option>
           <option value="Applied">Applied</option>
-          <option value="Interviewing">Interviewing</option>
+          <option value="Phone Screen">Phone Screen</option>
+          <option value="Technical">Technical</option>
           <option value="Offer">Offer</option>
           <option value="Rejected">Rejected</option>
           {canBeGhosted && <option value="Ghosted">Ghosted</option>}
@@ -158,13 +163,13 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
             className="form-input"
           />
         </div>
-        {showDateInterviewing && (
+        {showDatePhoneScreen && (
           <div className="form-group">
-            <label className="form-label">Date Interviewing</label>
+            <label className="form-label">Date Phone Screen</label>
             <input 
               type="date" 
-              value={dateInterviewing} 
-              onChange={(e) => setDateInterviewing(e.target.value)} 
+              value={datePhoneScreen} 
+              onChange={(e) => setDatePhoneScreen(e.target.value)} 
               className="form-input"
             />
           </div>
@@ -172,6 +177,17 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
       </div>
 
       <div className="form-row">
+        {showDateTechnical && (
+          <div className="form-group">
+            <label className="form-label">Date Technical</label>
+            <input 
+              type="date" 
+              value={dateTechnical} 
+              onChange={(e) => setDateTechnical(e.target.value)} 
+              className="form-input"
+            />
+          </div>
+        )}
         {showDateOffer && (
           <div className="form-group">
             <label className="form-label">Date of Offer</label>
@@ -183,6 +199,9 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
             />
           </div>
         )}
+      </div>
+
+      <div className="form-row">
         {showDateRejected && (
           <div className="form-group">
             <label className="form-label">Date Rejected</label>
