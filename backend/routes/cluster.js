@@ -1,178 +1,20 @@
 import express from 'express';
 import { requireAuth } from '../middleware/auth.js';
-import Job from '../models/Job.js';
-import { generateClusterLabels } from '../services/llmService.js';
+import ClusterController from '../controllers/ClusterController.js';
 
 const router = express.Router();
-
-const FLASK_URL = process.env.FLASK_CLUSTER_URL || 'http://localhost:5001';
+const clusterController = new ClusterController();
 
 // POST /api/cluster/recluster
 // Re-clusters all jobs for the authenticated user
-router.post('/recluster', requireAuth, async (req, res) => {
-  try {
-    const { autoName = false } = req.body;
-
-    // Fetch all jobs for this user
-    const jobs = await Job.find({ userId: req.userId });
-
-    if (jobs.length < 2) {
-      return res.status(400).json({
-        error: 'Need at least 2 jobs to cluster',
-      });
-    }
-
-    // Collect titles
-    const titles = jobs.map((j) => j.title).filter(Boolean);
-
-    // Call Flask /cluster-all
-    const flaskResponse = await fetch(`${FLASK_URL}/cluster-all`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ titles }),
-    });
-
-    if (!flaskResponse.ok) {
-      const err = await flaskResponse.json();
-      return res.status(502).json({
-        error: err.error || 'Clustering service error',
-      });
-    }
-
-    const clusterData = await flaskResponse.json();
-    const { assignments, clusters, optimal_k } = clusterData;
-
-    // If user requested auto-naming via LLM
-    let clusterLabels = {};
-    if (autoName) {
-      clusterLabels = await generateClusterLabels(clusters);
-    } else {
-      // Use default "Cluster N" labels
-      for (const [id, info] of Object.entries(clusters)) {
-        clusterLabels[id] = info.label;
-      }
-    }
-
-    // Update every job in the database
-    const bulkOps = jobs.map((job) => {
-      const assignment = assignments[job.title];
-      if (!assignment) return null;
-
-      const clusterId = assignment.clusterId;
-      const clusterLabel =
-        clusterLabels[String(clusterId)] || `Cluster ${clusterId}`;
-
-      return {
-        updateOne: {
-          filter: { _id: job._id },
-          update: { $set: { clusterId, clusterLabel } },
-        },
-      };
-    }).filter(Boolean);
-
-    if (bulkOps.length > 0) {
-      await Job.bulkWrite(bulkOps);
-    }
-
-    // Return the updated jobs
-    const updatedJobs = await Job.find({ userId: req.userId }).sort({
-      dateApplied: -1,
-    });
-
-    res.status(200).json({
-      message: `Clustered ${jobs.length} jobs into ${optimal_k} groups`,
-      optimal_k,
-      clusterLabels,
-      jobs: updatedJobs,
-    });
-  } catch (error) {
-    console.error('Recluster error:', error.message);
-    res.status(500).json({
-      error: error.message || 'Internal server error during reclustering',
-    });
-  }
-});
+router.post('/recluster', requireAuth, clusterController.recluster);
 
 // POST /api/cluster/rename
 // Rename a cluster label for all jobs in that cluster
-router.post('/rename', requireAuth, async (req, res) => {
-  try {
-    const { clusterId, newLabel } = req.body;
-
-    if (clusterId === undefined || !newLabel) {
-      return res
-        .status(400)
-        .json({ error: 'clusterId and newLabel are required' });
-    }
-
-    const result = await Job.updateMany(
-      { userId: req.userId, clusterId: clusterId },
-      { $set: { clusterLabel: newLabel } }
-    );
-
-    res.status(200).json({
-      message: `Renamed cluster ${clusterId} to "${newLabel}"`,
-      modifiedCount: result.modifiedCount,
-    });
-  } catch (error) {
-    console.error('Rename cluster error:', error.message);
-    res.status(500).json({ error: 'Failed to rename cluster' });
-  }
-});
+router.post('/rename', requireAuth, clusterController.rename);
 
 // POST /api/cluster/auto-name
 // Use LLM to generate labels for all current clusters
-router.post('/auto-name', requireAuth, async (req, res) => {
-  try {
-    const jobs = await Job.find({ userId: req.userId });
-
-    // Group by clusterId
-    const clusters = {};
-    for (const job of jobs) {
-      if (job.clusterId === undefined || job.clusterId === null) continue;
-      const key = String(job.clusterId);
-      if (!clusters[key]) clusters[key] = { label: job.clusterLabel, titles: [] };
-      if (!clusters[key].titles.includes(job.title)) {
-        clusters[key].titles.push(job.title);
-      }
-    }
-
-    if (Object.keys(clusters).length === 0) {
-      return res.status(400).json({
-        error: 'No clustered jobs found. Run recluster first.',
-      });
-    }
-
-    const clusterLabels = await generateClusterLabels(clusters);
-
-    // Update jobs in DB
-    const bulkOps = [];
-    for (const [id, label] of Object.entries(clusterLabels)) {
-      bulkOps.push({
-        updateMany: {
-          filter: { userId: req.userId, clusterId: Number(id) },
-          update: { $set: { clusterLabel: label } },
-        },
-      });
-    }
-
-    if (bulkOps.length > 0) {
-      await Job.bulkWrite(bulkOps);
-    }
-
-    const updatedJobs = await Job.find({ userId: req.userId }).sort({
-      dateApplied: -1,
-    });
-
-    res.status(200).json({
-      message: 'Cluster labels generated by AI',
-      clusterLabels,
-      jobs: updatedJobs,
-    });
-  } catch (error) {
-    console.error('Auto-name error:', error.message);
-    res.status(500).json({ error: 'Failed to auto-name clusters' });
-  }
-});
+router.post('/auto-name', requireAuth, clusterController.autoName);
 
 export default router;
