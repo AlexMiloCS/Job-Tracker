@@ -124,6 +124,49 @@
   gap: 8px;
 }
 
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.archive-toggle {
+  display: flex;
+  background-color: var(--bg-hover);
+  border-radius: 8px;
+  padding: 4px;
+  margin-left: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.archive-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.archive-btn:hover {
+  color: var(--text-primary);
+}
+
+.archive-btn.active {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.header-actions {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
 .job-title {
   margin: 0;
   font-size: 16px;

@@ -9,29 +9,29 @@ export default function Analytics() {
   return (
     <div className="analytics-page">
       <aside className="analytics-sidebar">
-        <h2 className="sidebar-title">Metrics</h2>
-        <nav className="sidebar-nav">
+        <h2 className="analytics-sidebar-title">Metrics</h2>
+        <nav className="analytics-sidebar-nav">
           <button 
-            className={`sidebar-nav-item ${activeTab === 'funnel' ? 'active' : ''}`}
+            className={`analytics-sidebar-nav-item ${activeTab === 'funnel' ? 'active' : ''}`}
             onClick={() => setActiveTab('funnel')}
           >
-            <FaChartBar className="sidebar-icon" />
+            <FaChartBar className="analytics-sidebar-icon" />
             Hiring Funnel
           </button>
           <button 
-            className={`sidebar-nav-item disabled`}
+            className={`analytics-sidebar-nav-item disabled`}
             disabled
             title="Coming Soon"
           >
-            <FaChartPie className="sidebar-icon" />
+            <FaChartPie className="analytics-sidebar-icon" />
             Time to Hire
           </button>
           <button 
-            className={`sidebar-nav-item disabled`}
+            className={`analytics-sidebar-nav-item disabled`}
             disabled
             title="Coming Soon"
           >
-            <FaChartLine className="sidebar-icon" />
+            <FaChartLine className="analytics-sidebar-icon" />
             Source Quality
           </button>
         </nav>

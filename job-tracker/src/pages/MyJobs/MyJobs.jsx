@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { deleteJob } from '../../store/jobsSlice';
+import { deleteJob, clearFilters } from '../../store/jobsSlice';
 import { FaLaptop, FaBuilding, FaSearch, FaTimes } from 'react-icons/fa';
 import Sidebar from '../../components/SideBar/Sidebar';
 import './MyJobs.css';
@@ -17,11 +17,23 @@ export default function MyJobs() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [isArchiveView, setIsArchiveView] = useState(false);
 
   // Reset page when filter, sort, search, or items per page changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeFilters, sortBy, searchQuery, itemsPerPage]);
+  }, [activeFilters, sortBy, searchQuery, itemsPerPage, isArchiveView]);
+
+  const archiveStatuses = ['Rejected', 'Ghosted'];
+
+  const currentViewJobs = jobs.filter(job => 
+    isArchiveView ? archiveStatuses.includes(job.status) : !archiveStatuses.includes(job.status)
+  );
+
+  const handleArchiveToggle = (viewArchived) => {
+    setIsArchiveView(viewArchived);
+    dispatch(clearFilters());
+  };
 
   const confirmDelete = () => {
     if (jobToDelete) {
@@ -31,7 +43,7 @@ export default function MyJobs() {
   };
 
   // Filter jobs
-  const filteredJobs = jobs.filter(job => {
+  const filteredJobs = currentViewJobs.filter(job => {
     // 1. Filter by activeFilters (AND between types, OR within types)
     if (activeFilters && activeFilters.length > 0) {
       const filtersByType = activeFilters.reduce((acc, filter) => {
@@ -123,11 +135,27 @@ export default function MyJobs() {
 
   return (
     <div className="my-jobs-layout">
-      <Sidebar jobs={jobs} />
+      <Sidebar jobs={currentViewJobs} />
       
       <section className="my-jobs-content">
         <div className="dashboard-header">
-          <h2 className="section-title">{pageTitle} ({filteredJobs.length})</h2>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <h2 className="section-title">{pageTitle} ({filteredJobs.length})</h2>
+            <div className="archive-toggle">
+              <button 
+                className={`archive-btn ${!isArchiveView ? 'active' : ''}`}
+                onClick={() => handleArchiveToggle(false)}
+              >
+                Active
+              </button>
+              <button 
+                className={`archive-btn ${isArchiveView ? 'active' : ''}`}
+                onClick={() => handleArchiveToggle(true)}
+              >
+                Archived
+              </button>
+            </div>
+          </div>
           <div className="header-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
             <select 
               className="sort-dropdown"
