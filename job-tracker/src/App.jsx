@@ -9,6 +9,7 @@ import MyJobs from './pages/MyJobs/MyJobs';
 import JobEditor from './pages/JobEditor/JobEditor';
 import LandingPage from './pages/LandingPage/LandingPage';
 import Settings from './pages/SettingsPage/Settings';
+import Analytics from './pages/Analytics/Analytics';
 
 import Header from './components/Header/Header';
 import BottomBar from './components/BottomBar/BottomBar';
@@ -69,6 +70,7 @@ function App() {
       <Route path="/edit/:id" element={<ProtectedLayout><JobEditor isNew={false} /></ProtectedLayout>} />
       
       <Route path="/settings" element={<ProtectedLayout><Settings /></ProtectedLayout>} />
+      <Route path="/analytics" element={<ProtectedLayout><Analytics /></ProtectedLayout>} />
       
       {/* Fallback for old bookmarks (like /dashboard) or unknown routes */}
       <Route path="*" element={<Navigate to={isAuthenticated ? "/my-jobs" : "/"} replace />} />
