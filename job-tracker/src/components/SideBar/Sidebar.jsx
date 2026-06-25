@@ -56,12 +56,18 @@ export default function Sidebar({ jobs }) {
     }
     // Count Countries
     if (job.country) {
-      countryMap[job.country] = (countryMap[job.country] || 0) + 1;
+      const countriesList = job.country.split('/').map(c => c.trim()).filter(Boolean);
+      countriesList.forEach(c => {
+        countryMap[c] = (countryMap[c] || 0) + 1;
+      });
     }
     // Count Cities (prefer city, fallback to old location)
     const cityKey = job.city || job.location;
     if (cityKey) {
-      cityMap[cityKey] = (cityMap[cityKey] || 0) + 1;
+      const citiesList = cityKey.split('/').map(c => c.trim()).filter(Boolean);
+      citiesList.forEach(c => {
+        cityMap[c] = (cityMap[c] || 0) + 1;
+      });
     }
   });
 

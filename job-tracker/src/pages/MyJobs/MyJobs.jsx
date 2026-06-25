@@ -61,10 +61,12 @@ export default function MyJobs() {
         } else if (type === 'workModel') {
           matches = values.includes(job.workModel);
         } else if (type === 'country') {
-          matches = values.includes(job.country);
+          const jobCountries = job.country ? job.country.split('/').map(c => c.trim()) : [];
+          matches = jobCountries.some(c => values.includes(c));
         } else if (type === 'city') {
           const cityKey = job.city || job.location;
-          matches = values.includes(cityKey);
+          const jobCities = cityKey ? cityKey.split('/').map(c => c.trim()) : [];
+          matches = jobCities.some(c => values.includes(c));
         }
         
         if (!matches) return false;
