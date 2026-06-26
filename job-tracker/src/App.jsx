@@ -10,6 +10,7 @@ import JobEditor from './pages/JobEditor/JobEditor';
 import LandingPage from './pages/LandingPage/LandingPage';
 import Settings from './pages/SettingsPage/Settings';
 import Analytics from './pages/Analytics/Analytics';
+import CVBuilder from './pages/CVBuilder/CVBuilder';
 
 import Header from './components/Header/Header';
 import BottomBar from './components/BottomBar/BottomBar';
@@ -71,6 +72,7 @@ function App() {
       
       <Route path="/settings" element={<ProtectedLayout><Settings /></ProtectedLayout>} />
       <Route path="/analytics" element={<ProtectedLayout><Analytics /></ProtectedLayout>} />
+      <Route path="/cv-builder" element={<ProtectedLayout><CVBuilder /></ProtectedLayout>} />
       
       {/* Fallback for old bookmarks (like /dashboard) or unknown routes */}
       <Route path="*" element={<Navigate to={isAuthenticated ? "/my-jobs" : "/"} replace />} />

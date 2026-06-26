@@ -8,6 +8,9 @@ class AuthController {
     this.login = this.login.bind(this);
     this.updateProfile = this.updateProfile.bind(this);
     this.updatePassword = this.updatePassword.bind(this);
+    this.uploadCV = this.uploadCV.bind(this);
+    this.removeCV = this.removeCV.bind(this);
+    this.compileCV = this.compileCV.bind(this);
   }
 
   async signup(req, res) {
@@ -46,6 +49,45 @@ class AuthController {
         return res.status(404).json({ error: error.message });
       }
       res.status(500).json({ error: 'Server error updating profile' });
+    }
+  }
+
+  async uploadCV(req, res) {
+    try {
+      const result = await this.authService.uploadCV(req.userId, req.file);
+      res.status(200).json(result);
+    } catch (error) {
+      if (error.message === 'No file uploaded') {
+        return res.status(400).json({ error: error.message });
+      }
+      if (error.message === 'User not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: 'Server error uploading CV' });
+    }
+  }
+
+  async removeCV(req, res) {
+    try {
+      const result = await this.authService.removeCV(req.userId);
+      res.status(200).json(result);
+    } catch (error) {
+      if (error.message === 'User not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: 'Server error removing CV' });
+    }
+  }
+
+  async compileCV(req, res) {
+    try {
+      const result = await this.authService.compileCV(req.userId, req.body.latexCode);
+      res.status(200).json(result);
+    } catch (error) {
+      if (error.message === 'No LaTeX code provided') {
+        return res.status(400).json({ error: error.message });
+      }
+      res.status(500).json({ error: error.message || 'Server error compiling CV' });
     }
   }
 

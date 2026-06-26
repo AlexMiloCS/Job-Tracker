@@ -1,0 +1,24 @@
+# SECURITY & PRIVACY MIGRATION LOG
+# Purpose: Track temporary technical debt and planned security upgrades.
+
+================================================================================
+[PENDING] MIGRATION: 001
+CATEGORY: Data Privacy / PII Handling
+COMPONENT: CV Builder (LaTeX Compilation Engine)
+================================================================================
+
+CURRENT STATE (DEVELOPMENT):
+* The CV Builder relies on the public API of latexonline.cc (https://latexonline.cc/compile).
+* This is strictly for initial UI testing and proof-of-concept.
+
+THE SECURITY RISK:
+* Sending raw CV data (names, emails, phone numbers, work history) to a third-party, public server violates standard data privacy practices. 
+* We do not control the retention policies of the public latexonline.cc server.
+
+THE TARGET FIX (PRODUCTION REQUIREMENT):
+* Before launching to public users, we must migrate away from the public API.
+* Action: Provision a private cloud server (e.g., AWS EC2, DigitalOcean Droplet).
+* Action: Self-host the open-source latex-online Docker container on our private infrastructure.
+* Action: Reroute the React/Node fetch requests to point exclusively to our internal compiler endpoint.
+
+STATUS: Open

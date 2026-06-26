@@ -1,6 +1,8 @@
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import fs from 'fs';
+import path from 'path';
 
 class AuthService {
   async signup(userData) {
@@ -27,7 +29,7 @@ class AuthService {
     
     return {
       token,
-      user: { id: newUser._id, email: newUser.email, firstName: newUser.firstName, lastName: newUser.lastName }
+      user: { id: newUser._id, email: newUser.email, firstName: newUser.firstName, lastName: newUser.lastName, cvUrl: newUser.cvUrl, generatedCvUrl: newUser.generatedCvUrl }
     };
   }
 
@@ -48,7 +50,7 @@ class AuthService {
     
     return {
       token,
-      user: { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, location: user.location }
+      user: { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, location: user.location, cvUrl: user.cvUrl, generatedCvUrl: user.generatedCvUrl }
     };
   }
 
@@ -75,8 +77,111 @@ class AuthService {
       email: updatedUser.email,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
-      location: updatedUser.location
+      location: updatedUser.location,
+      cvUrl: updatedUser.cvUrl,
+      generatedCvUrl: updatedUser.generatedCvUrl
     };
+  }
+
+  async uploadCV(userId, file) {
+    if (!file) {
+      throw new Error('No file uploaded');
+    }
+
+    const cvUrl = `/uploads/${file.filename}`;
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { cvUrl },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      throw new Error('User not found');
+    }
+
+    return {
+      id: updatedUser._id,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      location: updatedUser.location,
+      cvUrl: updatedUser.cvUrl,
+      generatedCvUrl: updatedUser.generatedCvUrl
+    };
+  }
+
+  async removeCV(userId) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (user.cvUrl) {
+      const filePath = path.join(process.cwd(), user.cvUrl);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+      
+      user.cvUrl = null;
+      await user.save();
+    }
+
+    return {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      location: user.location,
+      cvUrl: user.cvUrl,
+      generatedCvUrl: user.generatedCvUrl
+    };
+  }
+
+  async compileCV(userId, latexCode) {
+    if (!latexCode) {
+      throw new Error('No LaTeX code provided');
+    }
+
+    try {
+      const response = await fetch(`https://latexonline.cc/compile?text=${encodeURIComponent(latexCode)}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error('Failed to compile LaTeX: ' + errorText);
+      }
+
+      const buffer = await response.arrayBuffer();
+      const filename = `generated-cv-${userId}-${Date.now()}.pdf`;
+      const uploadDir = path.join(process.cwd(), 'uploads');
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir);
+      }
+      const filePath = path.join(uploadDir, filename);
+      fs.writeFileSync(filePath, Buffer.from(buffer));
+
+      const generatedCvUrl = `/uploads/${filename}`;
+      
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { generatedCvUrl },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        throw new Error('User not found');
+      }
+
+      return {
+        id: updatedUser._id,
+        email: updatedUser.email,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        location: updatedUser.location,
+        cvUrl: updatedUser.cvUrl,
+        generatedCvUrl: updatedUser.generatedCvUrl
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async updatePassword(userId, passwordData) {

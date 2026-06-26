@@ -26,6 +26,12 @@ function Header({ onLogout }) {
           Analytics
         </button>
         <button 
+          className={`nav-link ${location.pathname === '/cv-builder' ? 'active' : ''}`}
+          onClick={() => navigate('/cv-builder')}
+        >
+          CV Builder
+        </button>
+        <button 
           className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}
           onClick={() => navigate('/settings')}
         >

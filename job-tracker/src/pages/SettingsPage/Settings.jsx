@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../../store/themeSlice';
-import { updateProfile, updatePassword } from '../../store/authSlice';
+import { updateProfile, updatePassword, uploadCV, deleteCV } from '../../store/authSlice';
 import './Settings.css';
 
 function Settings() {
@@ -19,6 +19,7 @@ function Settings() {
   const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '' });
   const [profileMessage, setProfileMessage] = useState(null);
   const [passwordMessage, setPasswordMessage] = useState(null);
+  const [cvMessage, setCvMessage] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -58,6 +59,45 @@ function Settings() {
       }
     } catch (err) {
       setPasswordMessage({ type: 'error', text: 'An unexpected error occurred' });
+    }
+  };
+
+  const handleCVUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      setCvMessage({ type: 'error', text: 'Only PDF files are accepted.' });
+      return;
+    }
+
+    setCvMessage(null);
+    const formData = new FormData();
+    formData.append('cv', file);
+
+    try {
+      const resultAction = await dispatch(uploadCV(formData));
+      if (uploadCV.fulfilled.match(resultAction)) {
+        setCvMessage({ type: 'success', text: 'CV uploaded successfully!' });
+      } else {
+        setCvMessage({ type: 'error', text: resultAction.payload || 'Failed to upload CV' });
+      }
+    } catch (err) {
+      setCvMessage({ type: 'error', text: 'An unexpected error occurred' });
+    }
+  };
+
+  const handleDeleteCV = async () => {
+    setCvMessage(null);
+    try {
+      const resultAction = await dispatch(deleteCV());
+      if (deleteCV.fulfilled.match(resultAction)) {
+        setCvMessage({ type: 'success', text: 'CV deleted successfully!' });
+      } else {
+        setCvMessage({ type: 'error', text: resultAction.payload || 'Failed to delete CV' });
+      }
+    } catch (err) {
+      setCvMessage({ type: 'error', text: 'An unexpected error occurred' });
     }
   };
 
@@ -156,6 +196,45 @@ function Settings() {
             
             <button type="submit" className="submit-btn outline-btn">Update Password</button>
           </form>
+        </section>
+
+        {/* Section 4: Resume / CV */}
+        <section className="settings-card">
+          <h3>Resume / CV</h3>
+          {cvMessage && (
+            <div className={`settings-message ${cvMessage.type}`}>
+              {cvMessage.text}
+            </div>
+          )}
+          <div className="setting-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '15px' }}>
+            <div className="setting-text">
+              <strong>Upload your CV</strong>
+              <p>Only PDF files are accepted. Max size 5MB.</p>
+            </div>
+            {user?.cvUrl ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', width: '100%', boxSizing: 'border-box' }}>
+                <a href={`http://localhost:5000${user.cvUrl}`} target="_blank" rel="noopener noreferrer" style={{ fontWeight: '500', color: 'var(--primary-color)', textDecoration: 'none' }}>
+                  📄 View Current CV
+                </a>
+                <button type="button" onClick={handleDeleteCV} className="submit-btn outline-btn" style={{ borderColor: '#ef4444', color: '#ef4444', marginLeft: 'auto', padding: '6px 12px', marginTop: 0 }}>
+                  ✖ Delete
+                </button>
+              </div>
+            ) : (
+              <div>
+                <input 
+                  type="file" 
+                  id="cv-upload"
+                  accept="application/pdf"
+                  onChange={handleCVUpload}
+                  style={{ display: 'none' }}
+                />
+                <label htmlFor="cv-upload" className="submit-btn outline-btn" style={{ cursor: 'pointer', display: 'inline-block', marginTop: 0 }}>
+                  Choose File
+                </label>
+              </div>
+            )}
+          </div>
         </section>
 
       </div>

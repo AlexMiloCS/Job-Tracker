@@ -72,6 +72,53 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
+export const uploadCV = createAsyncThunk(
+  'auth/uploadCV',
+  async (formData, { getState, rejectWithValue }) => {
+    try {
+      const token = getState().auth.token || localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/auth/upload-cv`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}` 
+        },
+        body: formData
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to upload CV');
+      
+      localStorage.setItem('user', JSON.stringify(data));
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteCV = createAsyncThunk(
+  'auth/deleteCV',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const token = getState().auth.token || localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/auth/remove-cv`, {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to delete CV');
+      
+      localStorage.setItem('user', JSON.stringify(data));
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const updatePassword = createAsyncThunk(
   'auth/updatePassword',
   async (passwordData, { getState, rejectWithValue }) => {
@@ -146,6 +193,12 @@ export const authSlice = createSlice({
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.user = action.payload; // Update the user in state
+      })
+      .addCase(uploadCV.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(deleteCV.fulfilled, (state, action) => {
+        state.user = action.payload;
       });
   }
 });

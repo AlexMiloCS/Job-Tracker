@@ -23,6 +23,14 @@ const userSchema = new mongoose.Schema({
   createdAt: { 
     type: Date, 
     default: Date.now 
+  },
+  cvUrl: {
+    type: String,
+    default: null
+  },
+  generatedCvUrl: {
+    type: String,
+    default: null
   }
 });
 
