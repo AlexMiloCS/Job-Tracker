@@ -22,3 +22,13 @@ THE TARGET FIX (PRODUCTION REQUIREMENT):
 * Action: Reroute the React/Node fetch requests to point exclusively to our internal compiler endpoint.
 
 STATUS: Open
+
+# Security Considerations & Future Improvements
+
+This file tracks security and privacy enhancements to be implemented in the future.
+
+1. **Auto-Deletion Policy for CVs:**
+   Currently, generated CVs are saved to the backend disk indefinitely. A future improvement should implement an auto-expiration policy (e.g., deleting CVs from the server 24 hours after generation or upon user logout) to ensure data minimization and protect user privacy.
+
+2. **Encryption at Rest:**
+   PDF files (uploaded and generated) are currently stored in plain text on the server's filesystem. To protect sensitive personal identifiable information (PII) such as phone numbers, emails, and employment history from potential server breaches, AES-256 encryption should be implemented before writing files to disk, with decryption occurring only in memory during authenticated downloads.

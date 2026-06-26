@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import path from 'path';
 import { convertJsonToLatex } from '../utils/jsonToLatex.js';
-
+import { compileLatexToPDF } from './latexService.js';
 class AuthService {
   async signup(userData) {
     const { email, password, firstName, lastName, location } = userData;
@@ -156,62 +156,26 @@ class AuthService {
         throw new Error('User not found');
       }
 
-      const fd = new FormData();
-      fd.append('filecontents[]', latexCode);
-      fd.append('filename[]', 'document.tex');
-      fd.append('engine', 'pdflatex');
-      fd.append('return', 'pdf');
-
-      const response = await fetch('https://texlive.net/cgi-bin/latexcgi', {
-        method: 'POST',
-        body: fd
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to compile LaTeX: ${response.status}`);
-      }
-
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('text/plain')) {
-        const errorText = await response.text();
-        throw new Error('LaTeX Compilation Error:\n' + errorText);
-      }
-
-      const buffer = await response.arrayBuffer();
+      // Compile locally using Docker
+      const pdfBuffer = await compileLatexToPDF(latexCode);
       
       const safeFilename = fileName 
         ? fileName.replace(/[^a-zA-Z0-9_\-\.]/g, '_') 
-        : `Resume`;
+        : `Resume.pdf`;
       const finalFilename = safeFilename.endsWith('.pdf') ? safeFilename : `${safeFilename}.pdf`;
-
+      
       const uploadDir = path.join(process.cwd(), 'uploads', userId.toString());
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
       
       const filePath = path.join(uploadDir, finalFilename);
-      fs.writeFileSync(filePath, Buffer.from(buffer));
-
-      if (user.generatedCvUrl) {
-        const oldFilePath = path.join(process.cwd(), user.generatedCvUrl);
-        if (fs.existsSync(oldFilePath) && oldFilePath !== filePath) {
-          fs.unlinkSync(oldFilePath);
-        }
-      }
-
-      const generatedCvUrl = `/uploads/${userId}/${finalFilename}`;
-      user.generatedCvUrl = generatedCvUrl;
-      const updatedUser = await user.save();
-
-      return {
-        id: updatedUser._id,
-        email: updatedUser.email,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
-        location: updatedUser.location,
-        cvUrl: updatedUser.cvUrl,
-        generatedCvUrl: updatedUser.generatedCvUrl
-      };
+      fs.writeFileSync(filePath, pdfBuffer);
+      
+      user.generatedCvUrl = `/uploads/${userId}/${finalFilename}`;
+      await user.save();
+      
+      return pdfBuffer;
     } catch (error) {
       throw error;
     }
@@ -243,6 +207,25 @@ class AuthService {
     await user.save();
 
     return { generatedCvUrl };
+  }
+
+  async getCVFilePath(userId, type) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const fileUrl = type === 'generated' ? user.generatedCvUrl : user.cvUrl;
+    if (!fileUrl) {
+      throw new Error('CV not found');
+    }
+
+    const filePath = path.join(process.cwd(), fileUrl);
+    if (!fs.existsSync(filePath)) {
+      throw new Error('File not found on server');
+    }
+
+    return filePath;
   }
 
   async updatePassword(userId, passwordData) {

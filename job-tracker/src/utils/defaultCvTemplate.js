@@ -1,8 +1,5 @@
 export const DEFAULT_LATEX_TEMPLATE = String.raw`%-------------------------
-% Alex's CV Builder Template
-% Adapted from Resume in Latex by Jake Gutierrez
-% Based off of: https://github.com/sb2nov/resume
-% License : MIT
+% Custom CV Builder Template
 %------------------------
 
 \documentclass[letterpaper,11pt]{article}
@@ -103,11 +100,11 @@ export const DEFAULT_LATEX_TEMPLATE = String.raw`%-------------------------
 \begin{document}
 
 \begin{center}
-    {\Huge \scshape Alex Lastname} \\ \vspace{1pt}
-    123 Developer Way, Tech City, State 12345 \\ \vspace{1pt}
-    \small \raisebox{-0.1\height}\faPhone\ 123-456-7890 ~ \href{mailto:alex@example.com}{\raisebox{-0.2\height}\faEnvelope\  \underline{alex@example.com}} ~ 
-    \href{https://linkedin.com/in/alex}{\raisebox{-0.2\height}\faLinkedin\ \underline{linkedin.com/in/alex}}  ~
-    \href{https://github.com/alex}{\raisebox{-0.2\height}\faGithub\ \underline{github.com/alex}}
+    {\Huge \scshape Your Name} \\ \vspace{1pt}
+    City, State \\ \vspace{1pt}
+    \small \raisebox{-0.1\height}\faPhone\ Phone ~ \href{mailto:email@example.com}{\raisebox{-0.2\height}\faEnvelope\  \underline{email@example.com}} ~ 
+    \href{https://linkedin.com}{\raisebox{-0.2\height}\faLinkedin\ \underline{linkedin.com}}  ~
+    \href{https://github.com}{\raisebox{-0.2\height}\faGithub\ \underline{github.com}}
     \vspace{-8pt}
 \end{center}
 
@@ -115,36 +112,18 @@ export const DEFAULT_LATEX_TEMPLATE = String.raw`%-------------------------
 \section{Education}
   \resumeSubHeadingListStart
     \resumeSubheading
-      {State University}{Sep. 2017 -- May 2021}
-      {Bachelor of Science in Computer Science}{City, State}
+      {University}{Date}
+      {Degree}{Location}
   \resumeSubHeadingListEnd
-
-%------RELEVANT COURSEWORK-------
-\section{Relevant Coursework}
-        \begin{multicols}{4}
-            \begin{itemize}[itemsep=-5pt, parsep=3pt]
-                \item\small Data Structures
-                \item Software Methodology
-                \item Algorithms Analysis
-                \item Database Management
-                \item Artificial Intelligence
-                \item Internet Technology
-                \item Systems Programming
-                \item Computer Architecture
-            \end{itemize}
-        \end{multicols}
-        \vspace*{2.0\multicolsep}
 
 %-----------EXPERIENCE-----------
 \section{Experience}
   \resumeSubHeadingListStart
-
     \resumeSubheading
-      {Tech Company}{May 2020 -- August 2020}
-      {Software Engineer Intern}{City, State}
+      {Company}{Date}
+      {Title}{Location}
       \resumeItemListStart
-        \resumeItem{Developed a service to automatically perform a set of unit tests daily on a product in development.}
-        \resumeItem{Incorporated scripts using Python and Node.js to aggregate test results into an organized format.}
+        \resumeItem{Description point}
       \resumeItemListEnd
   \resumeSubHeadingListEnd
 \vspace{-16pt}
@@ -154,10 +133,9 @@ export const DEFAULT_LATEX_TEMPLATE = String.raw`%-------------------------
     \vspace{-5pt}
     \resumeSubHeadingListStart
       \resumeProjectHeading
-          {\textbf{Job Analytics Dashboard} $|$ \emph{React, Node.js, Python}}{January 2024}
+          {\textbf{Project Name} $|$ \emph{Technologies}}{Date}
           \resumeItemListStart
-            \resumeItem{Developed a full-stack application to track hiring funnels and predict job market success using ML.}
-            \resumeItem{Implemented an integrated CV builder utilizing LaTeX compilation for pixel-perfect ATS-friendly resumes.}
+            \resumeItem{Description point}
           \resumeItemListEnd
     \resumeSubHeadingListEnd
 \vspace{-16pt}
@@ -166,8 +144,8 @@ export const DEFAULT_LATEX_TEMPLATE = String.raw`%-------------------------
 \section{Technical Skills}
  \begin{itemize}[leftmargin=0.0in, label={}]
     \small{\item{
-     \textbf{Languages}{: Python, JavaScript, TypeScript, SQL, HTML/CSS} \\
-     \textbf{Technologies/Frameworks}{: React, Node.js, MongoDB, Docker, LaTeX} \\
+     \textbf{Languages}{: Skill 1, Skill 2} \\
+     \textbf{Technologies/Frameworks}{: Skill 3, Skill 4} \\
     }}
  \end{itemize}
  \vspace{-16pt}

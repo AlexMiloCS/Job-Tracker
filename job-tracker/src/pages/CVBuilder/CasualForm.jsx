@@ -4,6 +4,7 @@ import DynamicInput from './DynamicInput';
 
 function CasualForm({ data, onChange }) {
   const [activeTab, setActiveTab] = useState('basics');
+
   const updateBasics = (field, value) => {
     onChange({ ...data, basics: { ...data.basics, [field]: value } });
   };
@@ -24,74 +25,201 @@ function CasualForm({ data, onChange }) {
     onChange({ ...data, basics: { ...data.basics, links: newLinks } });
   };
 
-  const updateArrayItem = (arrayName, index, field, value) => {
-    const newArray = [...(data[arrayName] || [])];
-    newArray[index] = { ...newArray[index], [field]: value };
-    onChange({ ...data, [arrayName]: newArray });
+  const updateSectionTitle = (sIdx, title) => {
+    const newSections = [...(data.sections || [])];
+    newSections[sIdx] = { ...newSections[sIdx], title };
+    onChange({ ...data, sections: newSections });
   };
 
-  const addArrayItem = (arrayName, defaultObj) => {
-    const newArray = [...(data[arrayName] || []), defaultObj];
-    onChange({ ...data, [arrayName]: newArray });
+  const updateSectionItem = (sIdx, iIdx, field, value) => {
+    const newSections = [...(data.sections || [])];
+    const newItems = [...(newSections[sIdx].items || [])];
+    newItems[iIdx] = { ...newItems[iIdx], [field]: value };
+    newSections[sIdx] = { ...newSections[sIdx], items: newItems };
+    onChange({ ...data, sections: newSections });
   };
 
-  const removeArrayItem = (arrayName, index) => {
-    const newArray = (data[arrayName] || []).filter((_, i) => i !== index);
-    onChange({ ...data, [arrayName]: newArray });
+  const addSectionItem = (sIdx, defaultObj) => {
+    const newSections = [...(data.sections || [])];
+    const newItems = [...(newSections[sIdx].items || []), defaultObj];
+    newSections[sIdx] = { ...newSections[sIdx], items: newItems };
+    onChange({ ...data, sections: newSections });
   };
 
-  const updateHighlight = (arrayName, itemIndex, hIndex, value) => {
-    const newArray = [...(data[arrayName] || [])];
-    const newHighlights = [...(newArray[itemIndex].highlights || [])];
-    newHighlights[hIndex] = value;
-    newArray[itemIndex] = { ...newArray[itemIndex], highlights: newHighlights };
-    onChange({ ...data, [arrayName]: newArray });
+  const removeSectionItem = (sIdx, iIdx) => {
+    const newSections = [...(data.sections || [])];
+    const newItems = (newSections[sIdx].items || []).filter((_, i) => i !== iIdx);
+    newSections[sIdx] = { ...newSections[sIdx], items: newItems };
+    onChange({ ...data, sections: newSections });
   };
 
-  const addHighlight = (arrayName, itemIndex) => {
-    const newArray = [...(data[arrayName] || [])];
-    const newHighlights = [...(newArray[itemIndex].highlights || []), ''];
-    newArray[itemIndex] = { ...newArray[itemIndex], highlights: newHighlights };
-    onChange({ ...data, [arrayName]: newArray });
+  const updateSectionHighlight = (sIdx, iIdx, hIdx, value) => {
+    const newSections = [...(data.sections || [])];
+    const newItems = [...(newSections[sIdx].items || [])];
+    const newHighlights = [...(newItems[iIdx].highlights || [])];
+    newHighlights[hIdx] = value;
+    newItems[iIdx] = { ...newItems[iIdx], highlights: newHighlights };
+    newSections[sIdx] = { ...newSections[sIdx], items: newItems };
+    onChange({ ...data, sections: newSections });
   };
 
-  const removeHighlight = (arrayName, itemIndex, hIndex) => {
-    const newArray = [...(data[arrayName] || [])];
-    const newHighlights = (newArray[itemIndex].highlights || []).filter((_, i) => i !== hIndex);
-    newArray[itemIndex] = { ...newArray[itemIndex], highlights: newHighlights };
-    onChange({ ...data, [arrayName]: newArray });
+  const addSectionHighlight = (sIdx, iIdx) => {
+    const newSections = [...(data.sections || [])];
+    const newItems = [...(newSections[sIdx].items || [])];
+    const newHighlights = [...(newItems[iIdx].highlights || []), ''];
+    newItems[iIdx] = { ...newItems[iIdx], highlights: newHighlights };
+    newSections[sIdx] = { ...newSections[sIdx], items: newItems };
+    onChange({ ...data, sections: newSections });
   };
 
-  const updateSkill = (oldKey, newKey, value) => {
-    const newSkills = { ...data.skills };
-    if (oldKey !== newKey) {
-      delete newSkills[oldKey];
-    }
-    newSkills[newKey] = value;
-    onChange({ ...data, skills: newSkills });
+  const removeSectionHighlight = (sIdx, iIdx, hIdx) => {
+    const newSections = [...(data.sections || [])];
+    const newItems = [...(newSections[sIdx].items || [])];
+    const newHighlights = (newItems[iIdx].highlights || []).filter((_, i) => i !== hIdx);
+    newItems[iIdx] = { ...newItems[iIdx], highlights: newHighlights };
+    newSections[sIdx] = { ...newSections[sIdx], items: newItems };
+    onChange({ ...data, sections: newSections });
   };
 
-  const addSkill = () => {
-    onChange({ ...data, skills: { ...data.skills, ['New Category']: '' } });
+  const addNewSection = () => {
+    const newType = window.prompt("Enter layout type (DetailedList, ProjectList, SimpleList, TagsList):", "DetailedList");
+    if (!newType) return;
+    const newSections = [...(data.sections || []), { title: 'New Section', type: newType, items: [] }];
+    onChange({ ...data, sections: newSections });
+    setActiveTab(`section-${newSections.length - 1}`);
   };
 
-  const removeSkill = (key) => {
-    const newSkills = { ...data.skills };
-    delete newSkills[key];
-    onChange({ ...data, skills: newSkills });
+  const deleteSection = (sIdx) => {
+    if (!window.confirm('Are you sure you want to delete this section?')) return;
+    const newSections = (data.sections || []).filter((_, i) => i !== sIdx);
+    onChange({ ...data, sections: newSections });
+    setActiveTab('basics');
   };
 
-  return (
-    <div className="casual-form-container">
-      <div className="casual-tabs">
-        <button className={`casual-tab-btn ${activeTab === 'basics' ? 'active' : ''}`} onClick={() => setActiveTab('basics')}>Personal Details</button>
-        <button className={`casual-tab-btn ${activeTab === 'education' ? 'active' : ''}`} onClick={() => setActiveTab('education')}>Education</button>
-        <button className={`casual-tab-btn ${activeTab === 'experience' ? 'active' : ''}`} onClick={() => setActiveTab('experience')}>Experience</button>
-        <button className={`casual-tab-btn ${activeTab === 'projects' ? 'active' : ''}`} onClick={() => setActiveTab('projects')}>Projects</button>
-        <button className={`casual-tab-btn ${activeTab === 'skills' ? 'active' : ''}`} onClick={() => setActiveTab('skills')}>Skills</button>
-      </div>
+  const renderDetailedList = (sIdx, section) => (
+    <>
+      {(section.items || []).map((item, idx) => (
+        <div key={idx} className="array-item">
+          <div className="array-item-header">
+            <h4>{item.title || 'New Item'}</h4>
+            <button className="remove-btn" onClick={() => removeSectionItem(sIdx, idx)}>Remove</button>
+          </div>
+          <div className="grid-2">
+            <div className="form-group">
+              <label>Title/Role</label>
+              <DynamicInput value={item.title || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'title', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Subtitle/Company</label>
+              <DynamicInput value={item.subtitle || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'subtitle', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Date</label>
+              <DynamicInput value={item.date || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'date', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Location</label>
+              <DynamicInput value={item.location || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'location', e.target.value)} />
+            </div>
+          </div>
+          <div className="highlights-container">
+            <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'block', marginBottom: '8px' }}>Bullet Points</label>
+            {(item.highlights || []).map((h, hIdx) => (
+              <div key={hIdx} className="highlight-row">
+                <DynamicInput value={h} onChange={(e) => updateSectionHighlight(sIdx, idx, hIdx, e.target.value)} />
+                <button className="remove-btn" onClick={() => removeSectionHighlight(sIdx, idx, hIdx)}>X</button>
+              </div>
+            ))}
+            <button className="add-btn" onClick={() => addSectionHighlight(sIdx, idx)} style={{ marginTop: '4px', padding: '6px' }}>+ Add Bullet</button>
+          </div>
+        </div>
+      ))}
+      <button className="add-btn" onClick={() => addSectionItem(sIdx, { title: '', subtitle: '', date: '', location: '', highlights: [] })}>+ Add Item</button>
+    </>
+  );
 
-      {activeTab === 'basics' && (
+  const renderProjectList = (sIdx, section) => (
+    <>
+      {(section.items || []).map((item, idx) => (
+        <div key={idx} className="array-item">
+          <div className="array-item-header">
+            <h4>{item.title || 'New Project'}</h4>
+            <button className="remove-btn" onClick={() => removeSectionItem(sIdx, idx)}>Remove</button>
+          </div>
+          <div className="grid-2">
+            <div className="form-group">
+              <label>Project Name</label>
+              <DynamicInput value={item.title || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'title', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Technologies/Subtitle</label>
+              <DynamicInput value={item.subtitle || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'subtitle', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Date</label>
+              <DynamicInput value={item.date || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'date', e.target.value)} />
+            </div>
+          </div>
+          <div className="highlights-container">
+            <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'block', marginBottom: '8px' }}>Bullet Points</label>
+            {(item.highlights || []).map((h, hIdx) => (
+              <div key={hIdx} className="highlight-row">
+                <DynamicInput value={h} onChange={(e) => updateSectionHighlight(sIdx, idx, hIdx, e.target.value)} />
+                <button className="remove-btn" onClick={() => removeSectionHighlight(sIdx, idx, hIdx)}>X</button>
+              </div>
+            ))}
+            <button className="add-btn" onClick={() => addSectionHighlight(sIdx, idx)} style={{ marginTop: '4px', padding: '6px' }}>+ Add Bullet</button>
+          </div>
+        </div>
+      ))}
+      <button className="add-btn" onClick={() => addSectionItem(sIdx, { title: '', subtitle: '', date: '', highlights: [] })}>+ Add Project</button>
+    </>
+  );
+
+  const renderSimpleList = (sIdx, section) => (
+    <>
+      {(section.items || []).map((item, idx) => (
+        <div key={idx} className="array-item">
+          <div className="array-item-header">
+            <h4>{item.title || 'New Item'}</h4>
+            <button className="remove-btn" onClick={() => removeSectionItem(sIdx, idx)}>Remove</button>
+          </div>
+          <div className="grid-2">
+            <div className="form-group">
+              <label>Title/Award</label>
+              <DynamicInput value={item.title || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'title', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Date</label>
+              <DynamicInput value={item.date || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'date', e.target.value)} />
+            </div>
+          </div>
+          <div className="form-group" style={{ marginTop: '8px' }}>
+            <label>Description</label>
+            <DynamicInput value={item.description || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'description', e.target.value)} />
+          </div>
+        </div>
+      ))}
+      <button className="add-btn" onClick={() => addSectionItem(sIdx, { title: '', date: '', description: '' })}>+ Add Item</button>
+    </>
+  );
+
+  const renderTagsList = (sIdx, section) => (
+    <>
+      {(section.items || []).map((item, idx) => (
+        <div key={idx} className="highlight-row">
+          <DynamicInput value={item.title || ''} style={{ flex: '0.3' }} onChange={(e) => updateSectionItem(sIdx, idx, 'title', e.target.value)} placeholder="Category (e.g. Languages)" />
+          <DynamicInput value={item.description || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'description', e.target.value)} placeholder="Comma separated skills" />
+          <button className="remove-btn" onClick={() => removeSectionItem(sIdx, idx)}>X</button>
+        </div>
+      ))}
+      <button className="add-btn" onClick={() => addSectionItem(sIdx, { title: '', description: '' })}>+ Add Category</button>
+    </>
+  );
+
+  const renderSectionContent = () => {
+    if (activeTab === 'basics') {
+      return (
         <div className="casual-section">
           <h3>Personal Details</h3>
           <div className="grid-2">
@@ -123,148 +251,54 @@ function CasualForm({ data, onChange }) {
           ))}
           <button className="add-btn" onClick={addLink}>+ Add Link</button>
         </div>
-      )}
+      );
+    }
 
-      {activeTab === 'education' && (
-        <div className="casual-section">
-          <h3>Education</h3>
-          {(data.education || []).map((edu, idx) => (
-            <div key={idx} className="array-item">
-              <div className="array-item-header">
-                <h4>{edu.institution || 'New Institution'}</h4>
-                <button className="remove-btn" onClick={() => removeArrayItem('education', idx)}>Remove</button>
-              </div>
-              <div className="grid-2">
-                <div className="form-group">
-                  <label>Institution</label>
-                  <DynamicInput value={edu.institution || ''} onChange={(e) => updateArrayItem('education', idx, 'institution', e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label>Degree</label>
-                  <DynamicInput value={edu.degree || ''} onChange={(e) => updateArrayItem('education', idx, 'degree', e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label>Location</label>
-                  <DynamicInput value={edu.location || ''} onChange={(e) => updateArrayItem('education', idx, 'location', e.target.value)} />
-                </div>
-                <div className="grid-2">
-                  <div className="form-group">
-                    <label>Start Date</label>
-                    <DynamicInput value={edu.startDate || ''} onChange={(e) => updateArrayItem('education', idx, 'startDate', e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>End Date</label>
-                    <DynamicInput value={edu.endDate || ''} onChange={(e) => updateArrayItem('education', idx, 'endDate', e.target.value)} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-          <button className="add-btn" onClick={() => addArrayItem('education', { institution: '', degree: '', location: '', startDate: '', endDate: '' })}>+ Add Education</button>
-        </div>
-      )}
+    if (activeTab.startsWith('section-')) {
+      const sIdx = parseInt(activeTab.split('-')[1]);
+      const section = data.sections[sIdx];
+      if (!section) return null;
 
-      {activeTab === 'experience' && (
+      return (
         <div className="casual-section">
-          <h3>Experience</h3>
-          {(data.experience || []).map((exp, idx) => (
-            <div key={idx} className="array-item">
-              <div className="array-item-header">
-                <h4>{exp.company || 'New Company'}</h4>
-                <button className="remove-btn" onClick={() => removeArrayItem('experience', idx)}>Remove</button>
-              </div>
-              <div className="grid-2">
-                <div className="form-group">
-                  <label>Company</label>
-                  <DynamicInput value={exp.company || ''} onChange={(e) => updateArrayItem('experience', idx, 'company', e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label>Title</label>
-                  <DynamicInput value={exp.title || ''} onChange={(e) => updateArrayItem('experience', idx, 'title', e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label>Location</label>
-                  <DynamicInput value={exp.location || ''} onChange={(e) => updateArrayItem('experience', idx, 'location', e.target.value)} />
-                </div>
-                <div className="grid-2">
-                  <div className="form-group">
-                    <label>Start Date</label>
-                    <DynamicInput value={exp.startDate || ''} onChange={(e) => updateArrayItem('experience', idx, 'startDate', e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>End Date</label>
-                    <DynamicInput value={exp.endDate || ''} onChange={(e) => updateArrayItem('experience', idx, 'endDate', e.target.value)} />
-                  </div>
-                </div>
-              </div>
-              <div className="highlights-container">
-                <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'block', marginBottom: '8px' }}>Bullet Points</label>
-                {(exp.highlights || []).map((h, hIdx) => (
-                  <div key={hIdx} className="highlight-row">
-                    <DynamicInput value={h} onChange={(e) => updateHighlight('experience', idx, hIdx, e.target.value)} />
-                    <button className="remove-btn" onClick={() => removeHighlight('experience', idx, hIdx)}>X</button>
-                  </div>
-                ))}
-                <button className="add-btn" onClick={() => addHighlight('experience', idx)} style={{ marginTop: '4px', padding: '6px' }}>+ Add Bullet</button>
-              </div>
-            </div>
-          ))}
-          <button className="add-btn" onClick={() => addArrayItem('experience', { company: '', title: '', location: '', startDate: '', endDate: '', highlights: [] })}>+ Add Experience</button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <DynamicInput 
+              value={section.title || ''} 
+              onChange={(e) => updateSectionTitle(sIdx, e.target.value)}
+              style={{ fontSize: '1.5rem', fontWeight: 'bold', border: 'none', background: 'transparent', padding: 0, color: 'white', flex: 1 }}
+            />
+            <button className="remove-btn" onClick={() => deleteSection(sIdx)} style={{ marginLeft: '16px', padding: '8px 16px' }}>Delete Section</button>
+          </div>
+          <p style={{ color: '#888', marginBottom: '16px', fontSize: '0.9rem' }}>Layout: {section.type}</p>
+          
+          {section.type === 'DetailedList' && renderDetailedList(sIdx, section)}
+          {section.type === 'ProjectList' && renderProjectList(sIdx, section)}
+          {section.type === 'SimpleList' && renderSimpleList(sIdx, section)}
+          {section.type === 'TagsList' && renderTagsList(sIdx, section)}
         </div>
-      )}
+      );
+    }
+  };
 
-      {activeTab === 'projects' && (
-        <div className="casual-section">
-          <h3>Projects</h3>
-          {(data.projects || []).map((proj, idx) => (
-            <div key={idx} className="array-item">
-              <div className="array-item-header">
-                <h4>{proj.name || 'New Project'}</h4>
-                <button className="remove-btn" onClick={() => removeArrayItem('projects', idx)}>Remove</button>
-              </div>
-              <div className="grid-2">
-                <div className="form-group">
-                  <label>Project Name</label>
-                  <DynamicInput value={proj.name || ''} onChange={(e) => updateArrayItem('projects', idx, 'name', e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label>Technologies Used</label>
-                  <DynamicInput value={proj.technologies || ''} onChange={(e) => updateArrayItem('projects', idx, 'technologies', e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label>Date</label>
-                  <DynamicInput value={proj.date || ''} onChange={(e) => updateArrayItem('projects', idx, 'date', e.target.value)} />
-                </div>
-              </div>
-              <div className="highlights-container">
-                <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'block', marginBottom: '8px' }}>Bullet Points</label>
-                {(proj.highlights || []).map((h, hIdx) => (
-                  <div key={hIdx} className="highlight-row">
-                    <DynamicInput value={h} onChange={(e) => updateHighlight('projects', idx, hIdx, e.target.value)} />
-                    <button className="remove-btn" onClick={() => removeHighlight('projects', idx, hIdx)}>X</button>
-                  </div>
-                ))}
-                <button className="add-btn" onClick={() => addHighlight('projects', idx)} style={{ marginTop: '4px', padding: '6px' }}>+ Add Bullet</button>
-              </div>
-            </div>
-          ))}
-          <button className="add-btn" onClick={() => addArrayItem('projects', { name: '', technologies: '', date: '', highlights: [] })}>+ Add Project</button>
-        </div>
-      )}
+  return (
+    <div className="casual-form-container">
+      <div className="casual-tabs" style={{ flexWrap: 'wrap', gap: '8px' }}>
+        <button className={`casual-tab-btn ${activeTab === 'basics' ? 'active' : ''}`} onClick={() => setActiveTab('basics')}>Personal Details</button>
+        
+        {(data.sections || []).map((section, idx) => (
+          <button 
+            key={idx} 
+            className={`casual-tab-btn ${activeTab === ('section-' + idx) ? 'active' : ''}`} 
+            onClick={() => setActiveTab('section-' + idx)}
+          >
+            {section.title || 'Untitled'}
+          </button>
+        ))}
+        
+        <button className="casual-tab-btn" onClick={addNewSection} style={{ backgroundColor: '#2d3748', border: '1px dashed #4a5568' }}>+ Add Section</button>
+      </div>
 
-      {activeTab === 'skills' && (
-        <div className="casual-section">
-          <h3>Skills</h3>
-          {Object.entries(data.skills || {}).map(([key, value], idx) => (
-            <div key={idx} className="highlight-row">
-              <DynamicInput value={key} style={{ flex: '0.3' }} onChange={(e) => updateSkill(key, e.target.value, value)} placeholder="Category (e.g. Languages)" />
-              <DynamicInput value={value} onChange={(e) => updateSkill(key, key, e.target.value)} placeholder="Comma separated skills" />
-              <button className="remove-btn" onClick={() => removeSkill(key)}>X</button>
-            </div>
-          ))}
-          <button className="add-btn" onClick={addSkill}>+ Add Skill Category</button>
-        </div>
-      )}
+      {renderSectionContent()}
     </div>
   );
 }

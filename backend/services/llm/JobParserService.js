@@ -62,6 +62,75 @@ Rules:
       throw err;
     }
   }
+
+  async parseCvFromText(text) {
+    const systemPrompt = `You are an expert resume parser. Extract structured data from the provided raw PDF text of a user's CV.
+
+Return ONLY a valid JSON object with EXACTLY this structure (omit fields you cannot confidently determine or leave them empty, but keep the structure intact):
+{
+  "basics": {
+    "name": "Full Name",
+    "email": "email@example.com",
+    "phone": "Phone number",
+    "location": "City, State",
+    "links": [
+      { "name": "LinkedIn/GitHub/Portfolio", "url": "https://..." }
+    ]
+  },
+  "sections": [
+    {
+      "title": "Exact Header from PDF (e.g. Volunteer Experience, Awards, Education)",
+      "type": "DetailedList | ProjectList | SimpleList | TagsList",
+      "items": [
+        // Fields depend on the "type" chosen above. See rules below.
+      ]
+    }
+  ]
+}
+
+Layout Types and their exact items schemas:
+1. DetailedList: Use for jobs, volunteer roles, or degrees. 
+   Item schema: { "title": "Role/Degree", "subtitle": "Company/School", "date": "Month Year -- Month Year", "location": "City, State", "highlights": ["bullet 1", "bullet 2"] }
+2. ProjectList: Use for projects or academic papers.
+   Item schema: { "title": "Project Name", "subtitle": "Technologies/Venue", "date": "Month Year", "highlights": ["bullet 1"] }
+3. SimpleList: Use for awards, scholarships, or simple certifications.
+   Item schema: { "title": "Award Name", "date": "Month Year", "description": "Short description" }
+4. TagsList: Use for grouped skills (e.g. Technical Skills, Languages).
+   Item schema: { "title": "Category (e.g. Languages)", "description": "Comma separated list of skills" }
+
+Rules:
+- Output ONLY the JSON object, no markdown, no explanation.
+- Identify the logical sections the user has created in their PDF (e.g., 'Volunteer Experience', 'Academic Papers', 'Certifications'). Create a custom Block in the "sections" array for EACH one, preserving the user's custom section titles.
+- Choose the best layout "type" for each section block based on the content.
+- Break down long paragraphs into concise bullet points in the "highlights" arrays.`;
+
+    const chatCompletion = await this.llmClient.getGroqClient().chat.completions.create({
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: text },
+      ],
+      temperature: 0.1,
+      max_tokens: 2048,
+    });
+
+    const choice = chatCompletion.choices?.[0];
+    if (!choice) {
+      const err = new Error('No response received from Groq');
+      err.status = 502;
+      throw err;
+    }
+
+    try {
+      const parsedCv = this.llmClient.extractJson(choice.message.content);
+      return parsedCv;
+    } catch (parseError) {
+      console.error('Failed to parse LLM CV JSON:', choice.message.content);
+      const err = new Error('LLM returned invalid JSON. Please try again.');
+      err.status = 502;
+      throw err;
+    }
+  }
 }
 
 export default JobParserService;

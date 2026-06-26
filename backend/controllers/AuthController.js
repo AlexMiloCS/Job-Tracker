@@ -1,4 +1,5 @@
 import AuthService from '../services/AuthService.js';
+import path from 'path';
 
 class AuthController {
   constructor() {
@@ -12,6 +13,7 @@ class AuthController {
     this.removeCV = this.removeCV.bind(this);
     this.compileCV = this.compileCV.bind(this);
     this.renameCV = this.renameCV.bind(this);
+    this.downloadCV = this.downloadCV.bind(this);
   }
 
   async signup(req, res) {
@@ -83,8 +85,10 @@ class AuthController {
   async compileCV(req, res) {
     try {
       const { mode, data, fileName } = req.body;
-      const result = await this.authService.compileCV(req.userId, mode, data, fileName);
-      res.status(200).json(result);
+      const pdfBuffer = await this.authService.compileCV(req.userId, mode, data, fileName);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${fileName || 'resume.pdf'}"`);
+      res.send(pdfBuffer);
     } catch (error) {
       if (error.message === 'No LaTeX code provided') {
         return res.status(400).json({ error: error.message });
@@ -103,6 +107,26 @@ class AuthController {
         return res.status(400).json({ error: error.message });
       }
       res.status(500).json({ error: error.message || 'Server error renaming CV' });
+    }
+  }
+
+  async downloadCV(req, res) {
+    try {
+      const type = req.params.type; // 'uploaded' or 'generated'
+      const filePath = await this.authService.getCVFilePath(req.userId, type);
+      const isDownload = req.query.download === 'true';
+      const disposition = isDownload ? 'attachment' : 'inline';
+      
+      res.sendFile(filePath, { 
+        headers: { 
+          'Content-Disposition': `${disposition}; filename="${path.basename(filePath)}"` 
+        } 
+      });
+    } catch (error) {
+      if (error.message === 'User not found' || error.message === 'CV not found' || error.message === 'File not found on server') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: 'Server error downloading CV' });
     }
   }
 

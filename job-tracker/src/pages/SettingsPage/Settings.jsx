@@ -7,6 +7,7 @@ import './Settings.css';
 function Settings() {
   const isDarkMode = useSelector((state) => state.theme.isDarkMode);
   const user = useSelector((state) => state.auth.user);
+  const token = useSelector((state) => state.auth.token);
   
   const dispatch = useDispatch();
 
@@ -98,6 +99,21 @@ function Settings() {
       }
     } catch (err) {
       setCvMessage({ type: 'error', text: 'An unexpected error occurred' });
+    }
+  };
+
+  const handleViewCV = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/cv-file/uploaded`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Failed to fetch CV');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch(err) {
+      setCvMessage({ type: 'error', text: 'Failed to load CV' });
     }
   };
 
@@ -213,9 +229,9 @@ function Settings() {
             </div>
             {user?.cvUrl ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', width: '100%', boxSizing: 'border-box' }}>
-                <a href={`http://localhost:5000${user.cvUrl}`} target="_blank" rel="noopener noreferrer" style={{ fontWeight: '500', color: 'var(--primary-color)', textDecoration: 'none' }}>
+                <button onClick={handleViewCV} style={{ fontWeight: '500', color: 'var(--primary-color)', textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}>
                   📄 View Current CV
-                </a>
+                </button>
                 <button type="button" onClick={handleDeleteCV} className="submit-btn outline-btn" style={{ borderColor: '#ef4444', color: '#ef4444', marginLeft: 'auto', padding: '6px 12px', marginTop: 0 }}>
                   ✖ Delete
                 </button>

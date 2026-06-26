@@ -19,6 +19,8 @@ function CVBuilder() {
   const [error, setError] = useState(null);
   const [fileName, setFileName] = useState('Resume.pdf');
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const fileInputRef = React.useRef(null);
   
   const token = useSelector((state) => state.auth.token);
 
@@ -52,14 +54,25 @@ function CVBuilder() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Compilation failed');
+        let errorMsg = 'Compilation failed';
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.error || errorMsg;
+        } catch(e) {
+          // fallback if response is not JSON
+        }
+        throw new Error(errorMsg);
       }
 
-      const data = await response.json();
-      if (data.generatedCvUrl) {
-        setPdfUrl(`http://localhost:5000${data.generatedCvUrl}`);
-      }
+      await response.blob();
+      
+      setPdfUrl((prevUrl) => {
+        if (prevUrl && prevUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(prevUrl);
+        }
+        const safeFileName = encodeURIComponent(fileName || 'Resume.pdf');
+        return `${API_URL}/auth/cv-file/generated/${safeFileName}?token=${token}&t=${Date.now()}`;
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -100,12 +113,63 @@ function CVBuilder() {
 
       const data = await response.json();
       if (data.generatedCvUrl) {
-        setPdfUrl(`http://localhost:5000${data.generatedCvUrl}`);
+        setPdfUrl((prevUrl) => {
+          if (prevUrl && prevUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(prevUrl);
+          }
+          const safeFileName = encodeURIComponent(fileName || 'Resume.pdf');
+          return `${API_URL}/auth/cv-file/generated/${safeFileName}?token=${token}&t=${Date.now()}`;
+        });
       }
       setIsRenameModalOpen(false);
     } catch (err) {
       setError(err.message);
       setIsRenameModalOpen(false);
+    }
+  };
+
+  const handlePdfUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append('cvPdf', file);
+
+      const response = await fetch(`${API_URL}/groq/parse-cv-upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to import PDF');
+      }
+
+      const parsedCvData = await response.json();
+      
+      const defaultData = JSON.parse(DEFAULT_JSON_TEMPLATE);
+      const mergedData = { ...defaultData, ...parsedCvData };
+      
+      setCvData(mergedData);
+      setJsonCode(JSON.stringify(mergedData, null, 2));
+      
+      if (editorMode !== 'casual') {
+        setEditorMode('casual');
+      }
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -139,6 +203,21 @@ function CVBuilder() {
       <div className="cv-builder-header">
         <h2 style={{ margin: 0 }}>CV Builder</h2>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <input 
+            type="file" 
+            accept="application/pdf" 
+            ref={fileInputRef} 
+            style={{ display: 'none' }} 
+            onChange={handlePdfUpload} 
+          />
+          <button 
+            className="rename-file-btn"
+            style={{ backgroundColor: 'var(--primary-color, #4f46e5)', border: 'none' }}
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isImporting || isCompiling}
+          >
+            {isImporting ? 'Importing...' : 'Auto-Fill from PDF 🪄'}
+          </button>
           <button 
             className="rename-file-btn"
             onClick={() => setIsRenameModalOpen(true)}
@@ -148,7 +227,7 @@ function CVBuilder() {
           <button 
             className="submit-btn compile-btn"
             onClick={handleCompile}
-            disabled={isCompiling}
+            disabled={isCompiling || isImporting}
           >
             {isCompiling ? 'Compiling...' : 'Compile PDF'}
           </button>
