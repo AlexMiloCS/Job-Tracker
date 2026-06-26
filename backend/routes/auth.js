@@ -12,6 +12,7 @@ router.put('/profile', requireAuth, authController.updateProfile);
 router.post('/upload-cv', requireAuth, upload.single('cv'), authController.uploadCV);
 router.delete('/remove-cv', requireAuth, authController.removeCV);
 router.post('/compile-cv', requireAuth, authController.compileCV);
+router.post('/rename-cv', requireAuth, authController.renameCV);
 router.put('/password', requireAuth, authController.updatePassword);
 
 export default router;

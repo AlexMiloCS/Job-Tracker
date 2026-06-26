@@ -1,9 +1,10 @@
 .cv-builder-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 140px); /* Adjust based on header/footer height */
+  height: calc(100vh - 80px); /* Lock height exactly to viewport minus header */
   padding: 20px;
   box-sizing: border-box;
+  overflow: hidden; /* Prevent the entire page from scrolling */
 }
 
 .cv-builder-header {
@@ -33,6 +34,22 @@
   cursor: not-allowed;
 }
 
+.rename-file-btn {
+  padding: 10px 24px;
+  background-color: var(--bg-hover, #374151);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.rename-file-btn:hover {
+  background-color: var(--border-color, #4b5563);
+}
+
 .cv-error-message {
   background-color: rgba(239, 68, 68, 0.1);
   color: #ef4444;
@@ -56,6 +73,44 @@
   overflow: hidden;
   border: 1px solid var(--border-color);
   background-color: #1e1e1e; /* Monaco default dark bg */
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-mode-toggle {
+  display: flex;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #444;
+}
+
+.mode-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #aaa;
+  padding: 10px 0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-btn:hover {
+  background-color: #3d3d3d;
+  color: #fff;
+}
+
+.mode-btn.active {
+  background-color: #1e1e1e;
+  color: #fff;
+  border-bottom: 2px solid var(--primary-color);
+  font-weight: 600;
+}
+
+.editor-container {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .cv-preview-panel {
@@ -87,4 +142,54 @@
 .placeholder-content h3 {
   color: var(--text-secondary);
   margin-bottom: 8px;
+}
+
+.rename-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.rename-modal {
+  background-color: #1f1f1f;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rename-modal h3 {
+  margin: 0;
+  color: #fff;
+}
+
+.rename-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.rename-modal-actions button {
+  padding: 8px 24px;
+  background-color: var(--primary-color, #4db8ff);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.rename-modal-actions button:hover {
+  opacity: 0.9;
 }

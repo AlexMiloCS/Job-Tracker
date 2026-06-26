@@ -11,6 +11,7 @@ class AuthController {
     this.uploadCV = this.uploadCV.bind(this);
     this.removeCV = this.removeCV.bind(this);
     this.compileCV = this.compileCV.bind(this);
+    this.renameCV = this.renameCV.bind(this);
   }
 
   async signup(req, res) {
@@ -81,13 +82,27 @@ class AuthController {
 
   async compileCV(req, res) {
     try {
-      const result = await this.authService.compileCV(req.userId, req.body.latexCode);
+      const { mode, data, fileName } = req.body;
+      const result = await this.authService.compileCV(req.userId, mode, data, fileName);
       res.status(200).json(result);
     } catch (error) {
       if (error.message === 'No LaTeX code provided') {
         return res.status(400).json({ error: error.message });
       }
       res.status(500).json({ error: error.message || 'Server error compiling CV' });
+    }
+  }
+
+  async renameCV(req, res) {
+    try {
+      const { fileName } = req.body;
+      const result = await this.authService.renameCV(req.userId, fileName);
+      res.status(200).json(result);
+    } catch (error) {
+      if (error.message === 'No generated CV exists to rename') {
+        return res.status(400).json({ error: error.message });
+      }
+      res.status(500).json({ error: error.message || 'Server error renaming CV' });
     }
   }
 

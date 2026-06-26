@@ -1,0 +1,49 @@
+.dynamic-input {
+  box-sizing: border-box;
+  width: 100%;
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: none;
+  overflow: hidden;
+  line-height: 1.2rem;
+  transition: height 0.2s ease, border-color 0.2s, background-color 0.2s;
+  
+  /* Compact state */
+  height: 38px;
+  white-space: nowrap;
+}
+
+.dynamic-input.is-focused, .dynamic-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #4db8ff);
+  background-color: #1a1a1a;
+  
+  /* Expanded state - Height is controlled inline by JS */
+  white-space: pre-wrap;
+}
+
+/* Custom Scrollbar */
+.dynamic-input::-webkit-scrollbar {
+  width: 6px;
+}
+.dynamic-input::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dynamic-input::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+.dynamic-input::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+.dynamic-input::-webkit-scrollbar-button {
+  display: none;
+}
+.dynamic-input::-webkit-scrollbar-corner {
+  background: transparent;
+}

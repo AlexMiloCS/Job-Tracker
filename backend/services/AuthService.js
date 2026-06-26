@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import path from 'path';
+import { convertJsonToLatex } from '../utils/jsonToLatex.js';
 
 class AuthService {
   async signup(userData) {
@@ -137,38 +138,70 @@ class AuthService {
     };
   }
 
-  async compileCV(userId, latexCode) {
-    if (!latexCode) {
+  async compileCV(userId, mode, data, fileName) {
+    let latexCode = data;
+    
+    if (mode === 'json') {
+      if (!data || typeof data !== 'object') {
+        throw new Error('Invalid JSON data provided');
+      }
+      latexCode = convertJsonToLatex(data);
+    } else if (!latexCode) {
       throw new Error('No LaTeX code provided');
     }
 
     try {
-      const response = await fetch(`https://latexonline.cc/compile?text=${encodeURIComponent(latexCode)}`);
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const fd = new FormData();
+      fd.append('filecontents[]', latexCode);
+      fd.append('filename[]', 'document.tex');
+      fd.append('engine', 'pdflatex');
+      fd.append('return', 'pdf');
+
+      const response = await fetch('https://texlive.net/cgi-bin/latexcgi', {
+        method: 'POST',
+        body: fd
+      });
+
       if (!response.ok) {
+        throw new Error(`Failed to compile LaTeX: ${response.status}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('text/plain')) {
         const errorText = await response.text();
-        throw new Error('Failed to compile LaTeX: ' + errorText);
+        throw new Error('LaTeX Compilation Error:\n' + errorText);
       }
 
       const buffer = await response.arrayBuffer();
-      const filename = `generated-cv-${userId}-${Date.now()}.pdf`;
-      const uploadDir = path.join(process.cwd(), 'uploads');
+      
+      const safeFilename = fileName 
+        ? fileName.replace(/[^a-zA-Z0-9_\-\.]/g, '_') 
+        : `Resume`;
+      const finalFilename = safeFilename.endsWith('.pdf') ? safeFilename : `${safeFilename}.pdf`;
+
+      const uploadDir = path.join(process.cwd(), 'uploads', userId.toString());
       if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir);
+        fs.mkdirSync(uploadDir, { recursive: true });
       }
-      const filePath = path.join(uploadDir, filename);
+      
+      const filePath = path.join(uploadDir, finalFilename);
       fs.writeFileSync(filePath, Buffer.from(buffer));
 
-      const generatedCvUrl = `/uploads/${filename}`;
-      
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { generatedCvUrl },
-        { new: true }
-      );
-
-      if (!updatedUser) {
-        throw new Error('User not found');
+      if (user.generatedCvUrl) {
+        const oldFilePath = path.join(process.cwd(), user.generatedCvUrl);
+        if (fs.existsSync(oldFilePath) && oldFilePath !== filePath) {
+          fs.unlinkSync(oldFilePath);
+        }
       }
+
+      const generatedCvUrl = `/uploads/${userId}/${finalFilename}`;
+      user.generatedCvUrl = generatedCvUrl;
+      const updatedUser = await user.save();
 
       return {
         id: updatedUser._id,
@@ -182,6 +215,34 @@ class AuthService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async renameCV(userId, newFileName) {
+    const user = await User.findById(userId);
+    if (!user) throw new Error('User not found');
+    if (!user.generatedCvUrl) throw new Error('No generated CV exists to rename');
+
+    const safeFilename = newFileName 
+      ? newFileName.replace(/[^a-zA-Z0-9_\-\.]/g, '_') 
+      : `Resume`;
+    const finalFilename = safeFilename.endsWith('.pdf') ? safeFilename : `${safeFilename}.pdf`;
+
+    const oldFilePath = path.join(process.cwd(), user.generatedCvUrl);
+    const uploadDir = path.join(process.cwd(), 'uploads', userId.toString());
+    const newFilePath = path.join(uploadDir, finalFilename);
+
+    if (fs.existsSync(oldFilePath)) {
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      fs.renameSync(oldFilePath, newFilePath);
+    }
+
+    const generatedCvUrl = `/uploads/${userId}/${finalFilename}`;
+    user.generatedCvUrl = generatedCvUrl;
+    await user.save();
+
+    return { generatedCvUrl };
   }
 
   async updatePassword(userId, passwordData) {

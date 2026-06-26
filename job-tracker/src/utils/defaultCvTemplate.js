@@ -159,13 +159,12 @@ export const DEFAULT_LATEX_TEMPLATE = String.raw`%-------------------------
             \resumeItem{Developed a full-stack application to track hiring funnels and predict job market success using ML.}
             \resumeItem{Implemented an integrated CV builder utilizing LaTeX compilation for pixel-perfect ATS-friendly resumes.}
           \resumeItemListEnd
-          \vspace{-13pt}
     \resumeSubHeadingListEnd
-\vspace{-15pt}
+\vspace{-16pt}
 
 %-----------PROGRAMMING SKILLS-----------
 \section{Technical Skills}
- \begin{itemize}[leftmargin=0.15in, label={}]
+ \begin{itemize}[leftmargin=0.0in, label={}]
     \small{\item{
      \textbf{Languages}{: Python, JavaScript, TypeScript, SQL, HTML/CSS} \\
      \textbf{Technologies/Frameworks}{: React, Node.js, MongoDB, Docker, LaTeX} \\
