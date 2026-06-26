@@ -21,6 +21,7 @@ function Settings() {
   const [profileMessage, setProfileMessage] = useState(null);
   const [passwordMessage, setPasswordMessage] = useState(null);
   const [cvMessage, setCvMessage] = useState(null);
+  const [hasSavedCV, setHasSavedCV] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -30,7 +31,22 @@ function Settings() {
         email: user.email || ''
       });
     }
-  }, [user]);
+
+    // Check if user has saved CV data
+    const checkSavedCV = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/cv-data`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          setHasSavedCV(true);
+        }
+      } catch (err) {
+        console.error("Failed to check saved CV:", err);
+      }
+    };
+    if (token) checkSavedCV();
+  }, [user, token]);
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
@@ -114,6 +130,24 @@ function Settings() {
       window.open(url, '_blank');
     } catch(err) {
       setCvMessage({ type: 'error', text: 'Failed to load CV' });
+    }
+  };
+
+  const handleClearSavedCV = async () => {
+    setCvMessage(null);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/cv-data`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setHasSavedCV(false);
+        setCvMessage({ type: 'success', text: 'Saved Builder CV cleared successfully!' });
+      } else {
+        setCvMessage({ type: 'error', text: 'Failed to clear saved CV' });
+      }
+    } catch (err) {
+      setCvMessage({ type: 'error', text: 'An unexpected error occurred' });
     }
   };
 
@@ -249,6 +283,25 @@ function Settings() {
                   Choose File
                 </label>
               </div>
+            )}
+          </div>
+
+          <div className="setting-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '15px', marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+            <div className="setting-text">
+              <strong>Saved Builder CV</strong>
+              <p>Your work from the CV Builder saved to your account.</p>
+            </div>
+            {hasSavedCV ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', width: '100%', boxSizing: 'border-box' }}>
+                <span style={{ fontWeight: '500', color: 'var(--text-primary)' }}>
+                  ✅ Linked to your account
+                </span>
+                <button type="button" onClick={handleClearSavedCV} className="submit-btn outline-btn" style={{ borderColor: '#ef4444', color: '#ef4444', marginLeft: 'auto', padding: '6px 12px', marginTop: 0 }}>
+                  ✖ Clear Saved CV
+                </button>
+              </div>
+            ) : (
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>No Builder CV currently saved. Go to CV Builder and click 'Save CV'.</p>
             )}
           </div>
         </section>

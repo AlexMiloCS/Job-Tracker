@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import './DynamicInput.css';
 
-function DynamicInput({ value, onChange, placeholder, className = '' }) {
+function DynamicInput({ value, onChange, placeholder, className = '', style = {} }) {
   const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef(null);
 
@@ -36,6 +36,7 @@ function DynamicInput({ value, onChange, placeholder, className = '' }) {
       onBlur={() => setIsFocused(false)}
       placeholder={placeholder}
       className={`dynamic-input ${isFocused ? 'is-focused' : ''} ${className}`}
+      style={style}
       rows={1}
     />
   );

@@ -1,0 +1,6 @@
+# Ignore all generated and uploaded PDFs
+*.pdf
+
+# Ignore upload directories
+uploads/
+backend/uploads/

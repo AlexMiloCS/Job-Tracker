@@ -72,22 +72,22 @@
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border-color);
-  background-color: #1e1e1e; /* Monaco default dark bg */
+  background-color: var(--bg-card);
   display: flex;
   flex-direction: column;
 }
 
 .editor-mode-toggle {
   display: flex;
-  background-color: #2d2d2d;
-  border-bottom: 1px solid #444;
+  background-color: var(--bg-hover);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .mode-btn {
   flex: 1;
   background: none;
   border: none;
-  color: #aaa;
+  color: var(--text-muted);
   padding: 10px 0;
   font-size: 14px;
   cursor: pointer;
@@ -95,13 +95,13 @@
 }
 
 .mode-btn:hover {
-  background-color: #3d3d3d;
-  color: #fff;
+  background-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 .mode-btn.active {
-  background-color: #1e1e1e;
-  color: #fff;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   border-bottom: 2px solid var(--primary-color);
   font-weight: 600;
 }
@@ -156,8 +156,8 @@
 }
 
 .rename-modal {
-  background-color: #1f1f1f;
-  border: 1px solid #444;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 24px;
   width: 400px;
@@ -170,7 +170,7 @@
 
 .rename-modal h3 {
   margin: 0;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .rename-modal-actions {

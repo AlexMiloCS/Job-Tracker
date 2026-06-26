@@ -14,6 +14,9 @@ class AuthController {
     this.compileCV = this.compileCV.bind(this);
     this.renameCV = this.renameCV.bind(this);
     this.downloadCV = this.downloadCV.bind(this);
+    this.saveCVData = this.saveCVData.bind(this);
+    this.getCVData = this.getCVData.bind(this);
+    this.clearCVData = this.clearCVData.bind(this);
   }
 
   async signup(req, res) {
@@ -142,6 +145,42 @@ class AuthController {
         return res.status(400).json({ error: error.message });
       }
       res.status(500).json({ error: 'Server error updating password' });
+    }
+  }
+
+  async saveCVData(req, res) {
+    try {
+      const result = await this.authService.saveCVData(req.userId, req.body);
+      res.status(200).json(result);
+    } catch (error) {
+      if (error.message === 'User not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: 'Server error saving CV data' });
+    }
+  }
+
+  async getCVData(req, res) {
+    try {
+      const data = await this.authService.getCVData(req.userId);
+      res.status(200).json(data);
+    } catch (error) {
+      if (error.message === 'User not found' || error.message === 'No saved CV data found') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: 'Server error fetching CV data' });
+    }
+  }
+
+  async clearCVData(req, res) {
+    try {
+      const result = await this.authService.clearCVData(req.userId);
+      res.status(200).json(result);
+    } catch (error) {
+      if (error.message === 'User not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: 'Server error clearing CV data' });
     }
   }
 }

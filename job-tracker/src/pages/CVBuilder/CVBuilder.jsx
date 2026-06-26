@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { useSelector, useDispatch } from 'react-redux';
 import { DEFAULT_LATEX_TEMPLATE } from '../../utils/defaultCvTemplate';
@@ -20,9 +20,63 @@ function CVBuilder() {
   const [fileName, setFileName] = useState('Resume.pdf');
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = React.useRef(null);
   
   const token = useSelector((state) => state.auth.token);
+  const isDarkMode = useSelector((state) => state.theme?.isDarkMode);
+
+  useEffect(() => {
+    const fetchSavedCV = async () => {
+      try {
+        const response = await fetch(`${API_URL}/auth/cv-data`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCvData(data);
+          setJsonCode(JSON.stringify(data, null, 2));
+        }
+      } catch (err) {
+        console.error("Failed to fetch saved CV data:", err);
+      }
+    };
+    if (token) fetchSavedCV();
+  }, [token]);
+
+  const handleSaveCV = async () => {
+    setIsSaving(true);
+    setError(null);
+    try {
+      let dataToSave = cvData;
+      if (editorMode === 'json') {
+        try {
+          dataToSave = JSON.parse(jsonCode);
+        } catch (e) {
+          throw new Error('Invalid JSON format. Please fix syntax errors before saving.');
+        }
+      }
+      
+      const response = await fetch(`${API_URL}/auth/cv-data`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(dataToSave)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save CV');
+      }
+      alert('CV saved to your account successfully!');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleCompile = async () => {
     setIsCompiling(true);
@@ -214,10 +268,22 @@ function CVBuilder() {
             className="rename-file-btn"
             style={{ backgroundColor: 'var(--primary-color, #4f46e5)', border: 'none' }}
             onClick={() => fileInputRef.current?.click()}
-            disabled={isImporting || isCompiling}
+            disabled={isImporting || isCompiling || isSaving}
           >
             {isImporting ? 'Importing...' : 'Auto-Fill from PDF 🪄'}
           </button>
+          
+          {JSON.stringify(cvData) !== DEFAULT_JSON_TEMPLATE && (
+            <button 
+              className="rename-file-btn"
+              style={{ backgroundColor: '#10b981', border: 'none' }}
+              onClick={handleSaveCV}
+              disabled={isSaving || isCompiling || isImporting}
+            >
+              {isSaving ? 'Saving...' : 'Save CV'}
+            </button>
+          )}
+
           <button 
             className="rename-file-btn"
             onClick={() => setIsRenameModalOpen(true)}
@@ -265,7 +331,7 @@ function CVBuilder() {
               <Editor
                 height="100%"
                 language={editorMode === 'json' ? 'json' : 'latex'}
-                theme="vs-dark"
+                theme={isDarkMode ? 'vs-dark' : 'light'}
                 value={editorMode === 'json' ? jsonCode : latexCode}
                 onChange={(value) => {
                   if (editorMode === 'json') {

@@ -3,8 +3,8 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 20px;
-  background-color: #1a1a1a;
-  color: #eee;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -15,14 +15,14 @@
   width: 8px;
 }
 .casual-form-container::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: var(--bg-main);
 }
 .casual-form-container::-webkit-scrollbar-thumb {
-  background: #444;
+  background: var(--border-color);
   border-radius: 4px;
 }
 .casual-form-container::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--text-muted);
 }
 .casual-form-container::-webkit-scrollbar-button {
   display: none;
@@ -32,8 +32,8 @@
 }
 
 .casual-section {
-  background-color: #242424;
-  border: 1px solid #333;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 20px;
 }
@@ -43,7 +43,7 @@
   margin-bottom: 16px;
   font-size: 1.2rem;
   color: var(--primary-color, #4db8ff);
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 8px;
 }
 
@@ -56,17 +56,17 @@
 .form-group label {
   font-size: 0.85rem;
   margin-bottom: 6px;
-  color: #aaa;
+  color: var(--text-muted);
 }
 
 .form-group input, .form-group textarea {
   box-sizing: border-box;
   width: 100%;
-  background-color: #1e1e1e;
-  border: 1px solid #444;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 8px 12px;
-  color: #fff;
+  color: var(--text-primary);
   font-family: inherit;
   font-size: 0.95rem;
 }
@@ -77,8 +77,8 @@
 }
 
 .array-item {
-  background-color: #1e1e1e;
-  border: 1px solid #333;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 16px;
   margin-bottom: 16px;
@@ -95,7 +95,7 @@
 .array-item-header h4 {
   margin: 0;
   font-size: 1rem;
-  color: #ccc;
+  color: var(--text-primary);
 }
 
 .remove-btn {
@@ -135,7 +135,7 @@
 
 .highlights-container {
   margin-top: 12px;
-  border-top: 1px solid #333;
+  border-top: 1px solid var(--border-color);
   padding-top: 12px;
 }
 
@@ -148,11 +148,11 @@
 .highlight-row input, .highlight-row textarea {
   box-sizing: border-box;
   flex: 1;
-  background-color: #1e1e1e;
-  border: 1px solid #444;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 8px 12px;
-  color: #fff;
+  color: var(--text-primary);
   font-family: inherit;
   font-size: 0.95rem;
 }
@@ -188,14 +188,14 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 12px;
 }
 
 .casual-tab-btn {
   background: none;
   border: none;
-  color: #aaa;
+  color: var(--text-muted);
   font-size: 0.95rem;
   padding: 8px 16px;
   cursor: pointer;
@@ -205,8 +205,8 @@
 }
 
 .casual-tab-btn:hover {
-  background-color: #2a2a2a;
-  color: #fff;
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .casual-tab-btn.active {

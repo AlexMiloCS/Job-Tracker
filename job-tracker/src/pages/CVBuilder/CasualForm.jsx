@@ -127,7 +127,7 @@ function CasualForm({ data, onChange }) {
             </div>
           </div>
           <div className="highlights-container">
-            <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'block', marginBottom: '8px' }}>Bullet Points</label>
+            <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Bullet Points</label>
             {(item.highlights || []).map((h, hIdx) => (
               <div key={hIdx} className="highlight-row">
                 <DynamicInput value={h} onChange={(e) => updateSectionHighlight(sIdx, idx, hIdx, e.target.value)} />
@@ -165,7 +165,7 @@ function CasualForm({ data, onChange }) {
             </div>
           </div>
           <div className="highlights-container">
-            <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'block', marginBottom: '8px' }}>Bullet Points</label>
+            <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Bullet Points</label>
             {(item.highlights || []).map((h, hIdx) => (
               <div key={hIdx} className="highlight-row">
                 <DynamicInput value={h} onChange={(e) => updateSectionHighlight(sIdx, idx, hIdx, e.target.value)} />
@@ -245,7 +245,7 @@ function CasualForm({ data, onChange }) {
             </div>
           </div>
           
-          <h4 style={{ color: '#ccc', marginTop: '16px', marginBottom: '8px' }}>Links</h4>
+          <h4 style={{ color: 'var(--text-primary)', marginTop: '16px', marginBottom: '8px' }}>Links</h4>
           {(data.basics?.links || []).map((link, idx) => (
             <div key={idx} className="highlight-row">
               <DynamicInput placeholder="Name (e.g. GitHub)" value={link.name} onChange={(e) => updateLink(idx, 'name', e.target.value)} />
@@ -269,11 +269,11 @@ function CasualForm({ data, onChange }) {
             <DynamicInput 
               value={section.title || ''} 
               onChange={(e) => updateSectionTitle(sIdx, e.target.value)}
-              style={{ fontSize: '1.5rem', fontWeight: 'bold', border: 'none', background: 'transparent', padding: 0, color: 'white', flex: 1 }}
+              style={{ fontSize: '1.5rem', fontWeight: 'bold', border: 'none', background: 'transparent', padding: 0, color: 'var(--text-primary)', flex: 1 }}
             />
             <button className="remove-btn" onClick={() => deleteSection(sIdx)} style={{ marginLeft: '16px', padding: '8px 16px' }}>Delete Section</button>
           </div>
-          <p style={{ color: '#888', marginBottom: '16px', fontSize: '0.9rem' }}>Layout: {section.type}</p>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '16px', fontSize: '0.9rem' }}>Layout: {section.type}</p>
           
           {section.type === 'DetailedList' && renderDetailedList(sIdx, section)}
           {section.type === 'ProjectList' && renderProjectList(sIdx, section)}
@@ -299,7 +299,7 @@ function CasualForm({ data, onChange }) {
           </button>
         ))}
         
-        <button className="casual-tab-btn" onClick={addNewSection} style={{ backgroundColor: '#2d3748', border: '1px dashed #4a5568' }}>+ Add Section</button>
+        <button className="casual-tab-btn" onClick={addNewSection} style={{ backgroundColor: 'var(--bg-hover)', border: '1px dashed var(--border-color)' }}>+ Add Section</button>
       </div>
 
       {renderSectionContent()}

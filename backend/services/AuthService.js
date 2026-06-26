@@ -247,6 +247,33 @@ class AuthService {
     user.password = hashedPassword;
     await user.save();
   }
+  async saveCVData(userId, cvData) {
+    const user = await User.findById(userId);
+    if (!user) throw new Error('User not found');
+
+    user.cvData = cvData;
+    await user.save();
+    return { message: 'CV data saved successfully' };
+  }
+
+  async getCVData(userId) {
+    const user = await User.findById(userId);
+    if (!user) throw new Error('User not found');
+
+    if (!user.cvData) {
+      throw new Error('No saved CV data found');
+    }
+    return user.cvData;
+  }
+
+  async clearCVData(userId) {
+    const user = await User.findById(userId);
+    if (!user) throw new Error('User not found');
+
+    user.cvData = null;
+    await user.save();
+    return { message: 'CV data cleared successfully' };
+  }
 }
 
 export default AuthService;

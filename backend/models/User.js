@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema({
   generatedCvUrl: {
     type: String,
     default: null
+  },
+  cvData: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null
   }
 });
 

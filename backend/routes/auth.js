@@ -15,6 +15,9 @@ router.post('/compile-cv', requireAuth, authController.compileCV);
 router.post('/rename-cv', requireAuth, authController.renameCV);
 router.get('/cv-file/:type', requireAuth, authController.downloadCV);
 router.get('/cv-file/:type/:filename', requireAuth, authController.downloadCV);
+router.post('/cv-data', requireAuth, authController.saveCVData);
+router.get('/cv-data', requireAuth, authController.getCVData);
+router.delete('/cv-data', requireAuth, authController.clearCVData);
 router.put('/password', requireAuth, authController.updatePassword);
 
 export default router;
