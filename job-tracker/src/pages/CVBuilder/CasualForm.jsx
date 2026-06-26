@@ -105,6 +105,10 @@ function CasualForm({ data, onChange }) {
             <button className="remove-btn" onClick={() => removeSectionItem(sIdx, idx)}>Remove</button>
           </div>
           <div className="grid-2">
+            <div className="form-group" style={{ gridColumn: 'span 2' }}>
+              <label>Category (e.g. Administrative Experience)</label>
+              <DynamicInput value={item.category || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'category', e.target.value)} />
+            </div>
             <div className="form-group">
               <label>Title/Role</label>
               <DynamicInput value={item.title || ''} onChange={(e) => updateSectionItem(sIdx, idx, 'title', e.target.value)} />
@@ -134,7 +138,7 @@ function CasualForm({ data, onChange }) {
           </div>
         </div>
       ))}
-      <button className="add-btn" onClick={() => addSectionItem(sIdx, { title: '', subtitle: '', date: '', location: '', highlights: [] })}>+ Add Item</button>
+      <button className="add-btn" onClick={() => addSectionItem(sIdx, { category: '', title: '', subtitle: '', date: '', location: '', highlights: [] })}>+ Add Item</button>
     </>
   );
 

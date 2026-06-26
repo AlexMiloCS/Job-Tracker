@@ -13,6 +13,11 @@ const escapeLatex = (str) => {
     .replace(/\^/g, '\\textasciicircum ');
 };
 
+const isAllUppercase = (str) => {
+  const letters = str.replace(/[^a-zA-Z]/g, '');
+  return letters.length > 0 && letters === letters.toUpperCase();
+};
+
 const convertDynamicJsonToLatex = (data) => {
   const basics = data.basics || {};
   const sections = data.sections || [];
@@ -80,7 +85,7 @@ const convertDynamicJsonToLatex = (data) => {
 
 \newcommand{\resumeSubheading}[4]{
   \vspace{-2pt}\item
-    \begin{tabularx}{\textwidth}{X r}
+    \begin{tabularx}{\textwidth}{X @{\hspace{1em}} r}
       \textbf{#1} & \textbf{\small #2} \\
       \textit{\small#3} & \textit{\small #4} \\
     \end{tabularx}\vspace{-7pt}
@@ -88,7 +93,7 @@ const convertDynamicJsonToLatex = (data) => {
 
 \newcommand{\resumeProjectHeading}[2]{
     \item
-    \begin{tabularx}{\textwidth}{X r}
+    \begin{tabularx}{\textwidth}{X @{\hspace{1em}} r}
       \small#1 & \textbf{\small #2}\\
     \end{tabularx}\vspace{-7pt}
 }
@@ -133,54 +138,138 @@ const convertDynamicJsonToLatex = (data) => {
 
   let body = '';
 
+  const groupedSections = [];
+  let expGroupIndex = -1;
+
   for (const section of sections) {
     if (!section.items || section.items.length === 0) continue;
-
-    body += `\n%-----------${section.title.toUpperCase()}-----------\n`;
-    body += `\\section{${escapeLatex(section.title)}}\n`;
-
-    if (section.type === 'DetailedList') {
-      body += `  \\resumeSubHeadingListStart\n`;
-      for (const item of section.items) {
-        body += `    \\resumeSubheading\n      {${escapeLatex(item.title)}}{${escapeLatex(item.date || '')}}\n      {${escapeLatex(item.subtitle || '')}}{${escapeLatex(item.location || '')}}\n`;
-        if (item.highlights && item.highlights.length > 0) {
-          body += `      \\resumeItemListStart\n`;
-          for (const h of item.highlights) {
-            body += `        \\resumeItem{${escapeLatex(h)}}\n`;
-          }
-          body += `      \\resumeItemListEnd\n`;
-        }
+    
+    if (section.title.toLowerCase().includes('experience')) {
+      if (expGroupIndex === -1) {
+        groupedSections.push({
+          isGroup: true,
+          title: 'Experience',
+          subSections: [section]
+        });
+        expGroupIndex = groupedSections.length - 1;
+      } else {
+        groupedSections[expGroupIndex].subSections.push(section);
       }
-      body += `  \\resumeSubHeadingListEnd\n\\vspace{-16pt}\n`;
+    } else {
+      groupedSections.push(section);
+    }
+  }
+
+  const renderDetailedItem = (item) => {
+    let out = `    \\resumeSubheading\n      {${escapeLatex(item.title)}}{${escapeLatex(item.date || '')}}\n      {${escapeLatex(item.subtitle || '')}}{${escapeLatex(item.location || '')}}\n`;
+    if (item.highlights && item.highlights.length > 0) {
+      out += `      \\resumeItemListStart\n`;
+      for (const h of item.highlights) {
+        out += `        \\resumeItem{${escapeLatex(h)}}\n`;
+      }
+      out += `      \\resumeItemListEnd\n`;
+    }
+    return out;
+  };
+
+  const renderSectionBody = (section) => {
+    let out = '';
+    if (section.type === 'DetailedList') {
+      const hasCategories = section.items.some(item => item.category);
+      if (hasCategories) {
+        const categorizedItems = {};
+        const uncategorizedItems = [];
+        for (const item of section.items) {
+          if (item.category) {
+            if (!categorizedItems[item.category]) categorizedItems[item.category] = [];
+            categorizedItems[item.category].push(item);
+          } else {
+            uncategorizedItems.push(item);
+          }
+        }
+        
+        if (uncategorizedItems.length > 0) {
+          out += `  \\resumeSubHeadingListStart\n`;
+          for (const item of uncategorizedItems) {
+            out += renderDetailedItem(item);
+          }
+          out += `  \\resumeSubHeadingListEnd\n`;
+        }
+        
+        for (const [category, items] of Object.entries(categorizedItems)) {
+          const parentPrinted = section.title.toLowerCase() !== 'experience';
+          if (!(parentPrinted && category.toLowerCase() === section.title.toLowerCase())) {
+            out += `  \\vspace{2pt}\n  \\noindent{\\large \\textbf{${escapeLatex(category)}}}\\par\n  \\vspace{-6pt}\n  \\noindent\\rule{\\textwidth}{0.4pt}\n`;
+          }
+          out += `  \\resumeSubHeadingListStart\n`;
+          for (const item of items) {
+            out += renderDetailedItem(item);
+          }
+          out += `  \\resumeSubHeadingListEnd\n`;
+        }
+        out += `\\vspace{-16pt}\n`;
+      } else {
+        out += `  \\resumeSubHeadingListStart\n`;
+        for (const item of section.items) {
+          out += renderDetailedItem(item);
+        }
+        out += `  \\resumeSubHeadingListEnd\n\\vspace{-16pt}\n`;
+      }
 
     } else if (section.type === 'ProjectList') {
-      body += `    \\vspace{-5pt}\n    \\resumeSubHeadingListStart\n`;
+      out += `    \\vspace{-5pt}\n    \\resumeSubHeadingListStart\n`;
       for (const item of section.items) {
         const titleLine = item.subtitle ? `\\textbf{${escapeLatex(item.title)}} $|$ \\emph{${escapeLatex(item.subtitle)}}` : `\\textbf{${escapeLatex(item.title)}}`;
-        body += `      \\resumeProjectHeading\n          {${titleLine}}{${escapeLatex(item.date || '')}}\n`;
+        out += `      \\resumeProjectHeading\n          {${titleLine}}{${escapeLatex(item.date || '')}}\n`;
         if (item.highlights && item.highlights.length > 0) {
-          body += `          \\resumeItemListStart\n`;
+          out += `          \\resumeItemListStart\n`;
           for (const h of item.highlights) {
-            body += `            \\resumeItem{${escapeLatex(h)}}\n`;
+            out += `            \\resumeItem{${escapeLatex(h)}}\n`;
           }
-          body += `          \\resumeItemListEnd\n`;
+          out += `          \\resumeItemListEnd\n`;
         }
       }
-      body += `    \\resumeSubHeadingListEnd\n\\vspace{-16pt}\n`;
+      out += `    \\resumeSubHeadingListEnd\n\\vspace{-16pt}\n`;
 
     } else if (section.type === 'SimpleList') {
-      body += `  \\resumeSubHeadingListStart\n`;
+      out += `  \\resumeSubHeadingListStart\n`;
       for (const item of section.items) {
-        body += `    \\resumeSubheading\n      {${escapeLatex(item.title)}}{${escapeLatex(item.date || '')}}\n      {${escapeLatex(item.description || '')}}{}\n`;
+        out += `    \\resumeSubheading\n      {${escapeLatex(item.title)}}{${escapeLatex(item.date || '')}}\n      {${escapeLatex(item.description || '')}}{}\n`;
       }
-      body += `  \\resumeSubHeadingListEnd\n\\vspace{-16pt}\n`;
+      out += `  \\resumeSubHeadingListEnd\n\\vspace{-16pt}\n`;
 
     } else if (section.type === 'TagsList') {
-      body += ` \\begin{itemize}[leftmargin=0.0in, label={}]\n    \\small{\\item{\n`;
+      out += ` \\begin{itemize}[leftmargin=0.0in, label={}]\n    \\small{\\item{\n`;
       for (const item of section.items) {
-        body += `     \\textbf{${escapeLatex(item.title)}}{: ${escapeLatex(item.description || '')}} \\\\\n`;
+        out += `     \\textbf{${escapeLatex(item.title)}}{: ${escapeLatex(item.description || '')}} \\\\\n`;
       }
-      body += `    }}\n \\end{itemize}\n \\vspace{-16pt}\n`;
+      out += `    }}\n \\end{itemize}\n \\vspace{-16pt}\n`;
+    }
+    return out;
+  };
+
+  for (const groupOrSection of groupedSections) {
+    if (groupOrSection.isGroup) {
+      body += `\n%-----------${groupOrSection.title.toUpperCase()}-----------\n`;
+      let titleToUse = groupOrSection.title;
+      if (groupOrSection.subSections.length > 0 && isAllUppercase(groupOrSection.subSections[0].title)) {
+        titleToUse = titleToUse.toUpperCase();
+      }
+      body += `\\section{${escapeLatex(titleToUse)}}\n`;
+      for (let i = 0; i < groupOrSection.subSections.length; i++) {
+        const section = groupOrSection.subSections[i];
+        if (i > 0) {
+          body += `  \\vspace{16pt}\n`;
+        }
+        if (section.title.toLowerCase() !== 'experience') {
+          body += `  \\vspace{2pt}\n  \\noindent{\\large \\textbf{${escapeLatex(section.title)}}}\\par\n  \\vspace{-6pt}\n  \\noindent\\rule{\\textwidth}{0.4pt}\n`;
+        }
+        body += renderSectionBody(section);
+      }
+    } else {
+      body += `\n%-----------${groupOrSection.title.toUpperCase()}-----------\n`;
+      body += `\\section{${escapeLatex(groupOrSection.title)}}\n`;
+      body += renderSectionBody(groupOrSection);
     }
   }
 

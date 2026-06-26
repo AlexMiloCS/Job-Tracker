@@ -90,7 +90,7 @@ Return ONLY a valid JSON object with EXACTLY this structure (omit fields you can
 
 Layout Types and their exact items schemas:
 1. DetailedList: Use for jobs, volunteer roles, or degrees. 
-   Item schema: { "title": "Role/Degree", "subtitle": "Company/School", "date": "Month Year -- Month Year", "location": "City, State", "highlights": ["bullet 1", "bullet 2"] }
+   Item schema: { "category": "Optional Sub-category (e.g. Administrative Experience)", "title": "Role/Degree", "subtitle": "Company/School", "date": "Month Year -- Month Year", "location": "City, State", "highlights": ["bullet 1", "bullet 2"] }
 2. ProjectList: Use for projects or academic papers.
    Item schema: { "title": "Project Name", "subtitle": "Technologies/Venue", "date": "Month Year", "highlights": ["bullet 1"] }
 3. SimpleList: Use for awards, scholarships, or simple certifications.
@@ -100,7 +100,9 @@ Layout Types and their exact items schemas:
 
 Rules:
 - Output ONLY the JSON object, no markdown, no explanation.
-- Identify the logical sections the user has created in their PDF (e.g., 'Volunteer Experience', 'Academic Papers', 'Certifications'). Create a custom Block in the "sections" array for EACH one, preserving the user's custom section titles.
+- Identify the logical sections the user has created in their PDF.
+- CRITICAL RULE FOR EXPERIENCE: If the PDF has multiple experience-related sections (e.g. 'Volunteer Experience', 'Administrative Experience', 'Research Experience'), you MUST MERGE them ALL into a SINGLE section block named "EXPERIENCE" with type "DetailedList". For each item inside this merged section, set its "category" field to the specific experience type (e.g. "Volunteer Experience").
+- For all other non-experience sections, create a custom Block in the "sections" array preserving their original section titles.
 - Choose the best layout "type" for each section block based on the content.
 - Break down long paragraphs into concise bullet points in the "highlights" arrays.`;
 
