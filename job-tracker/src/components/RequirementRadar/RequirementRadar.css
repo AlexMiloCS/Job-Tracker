@@ -1,0 +1,64 @@
+.requirement-radar-container {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.radar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.radar-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.radar-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.radar-controls label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.radar-select {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.radar-select:focus {
+  border-color: var(--primary-color, #4f46e5);
+}
+
+.radar-loading, .radar-error, .radar-empty {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.radar-error {
+  color: #ef4444;
+}
+
+.radar-chart-wrapper {
+  margin-top: 10px;
+}

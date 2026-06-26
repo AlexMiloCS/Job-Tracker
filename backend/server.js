@@ -8,6 +8,7 @@ import groqRoutes from './routes/groq.js';
 import clusterRoutes from './routes/cluster.js';
 import authRoutes from './routes/auth.js';
 import jobRoutes from './routes/jobs.js';
+import analyticsRoutes from './routes/analytics.js';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use('/api/groq', groqRoutes);
 app.use('/api/cluster', clusterRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 const connectDB = async () => {
   try {

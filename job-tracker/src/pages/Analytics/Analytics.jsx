@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { FaChartBar, FaChartPie, FaChartLine } from 'react-icons/fa';
 import FunnelAnalytics from '../../components/FunnelAnalytics/FunnelAnalytics';
 import StatusBreakdown from '../../components/StatusBreakdown/StatusBreakdown';
+import RequirementRadar from '../../components/RequirementRadar/RequirementRadar';
+import { FaProjectDiagram } from 'react-icons/fa';
 import './Analytics.css';
 
 export default function Analytics() {
@@ -27,6 +29,13 @@ export default function Analytics() {
             Status Breakdown
           </button>
           <button 
+            className={`analytics-sidebar-nav-item ${activeTab === 'radar' ? 'active' : ''}`}
+            onClick={() => setActiveTab('radar')}
+          >
+            <FaProjectDiagram className="analytics-sidebar-icon" />
+            Requirement Radar
+          </button>
+          <button 
             className={`analytics-sidebar-nav-item disabled`}
             disabled
             title="Coming Soon"
@@ -46,6 +55,7 @@ export default function Analytics() {
         <div className="analytics-grid">
           {activeTab === 'funnel' && <FunnelAnalytics />}
           {activeTab === 'status' && <StatusBreakdown />}
+          {activeTab === 'radar' && <RequirementRadar />}
           {/* Future widgets can go here based on activeTab */}
         </div>
       </section>
