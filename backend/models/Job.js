@@ -14,7 +14,7 @@ const jobSchema = new mongoose.Schema({
   dateTechnical: { type: Date },
   dateOffer: { type: Date },
   dateRejected: { type: Date },
-  requirements: { type: String },
+  tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
   notes: { type: String },
   link: { type: String },
   clusterId: { type: Number },

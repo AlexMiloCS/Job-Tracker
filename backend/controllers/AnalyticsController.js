@@ -8,22 +8,20 @@ class AnalyticsController {
 
   async getRequirementsRadar(req, res) {
     try {
-      // Fetch all jobs for the current user that have requirements
+      // Fetch all jobs for the current user that have tags
       const jobs = await Job.find({ 
         userId: req.userId,
-        requirements: { $exists: true, $ne: '' }
-      });
+        tags: { $exists: true, $ne: [] }
+      }).populate('tags');
       
       const requirementCounts = {};
 
       jobs.forEach(job => {
-        if (!job.requirements) return;
+        if (!job.tags || !Array.isArray(job.tags)) return;
         
-        // Split by comma, trim whitespace, and uppercase
-        const reqs = job.requirements.split(',').map(r => r.trim().toUpperCase());
-        
-        reqs.forEach(reqName => {
-          if (!reqName || reqName === '?' || reqName === '-') return;
+        job.tags.forEach(tag => {
+          if (!tag || !tag.name) return;
+          const reqName = tag.name;
           requirementCounts[reqName] = (requirementCounts[reqName] || 0) + 1;
         });
       });

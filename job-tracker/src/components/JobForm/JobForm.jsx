@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import './JobForm.css';
 
 
+import RequirementTagInput from '../RequirementTagInput/RequirementTagInput';
+
 function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
   const today = new Date().toISOString().split('T')[0];
 
@@ -23,7 +25,12 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
   const [dateOffer, setDateOffer] = useState(existingJob?.dateOffer ? new Date(existingJob.dateOffer).toISOString().split('T')[0] : '');
   const [dateRejected, setDateRejected] = useState(existingJob?.dateRejected ? new Date(existingJob.dateRejected).toISOString().split('T')[0] : '');
 
-  const [requirements, setRequirements] = useState(existingJob?.requirements || '');
+  // Initialize tags from existing tags
+  const initialTags = existingJob?.tags && existingJob.tags.length > 0
+    ? existingJob.tags.map(t => typeof t === 'string' ? t : t.name)
+    : [];
+      
+  const [tags, setTags] = useState(initialTags);
   const [notes, setNotes] = useState(existingJob?.notes || ''); 
 
   const daysSinceApplied = Math.floor((new Date() - new Date(dateApplied)) / (1000 * 60 * 60 * 24));
@@ -34,7 +41,7 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
   const showDateOffer = status === 'Offer' || !!dateOffer;
   const showDateRejected = status === 'Rejected' || !!dateRejected;
 
-  // Apply AI autofill data when it arrives (non-destructive: only sets fields present in the data)
+  // Apply AI autofill data when it arrives
   useEffect(() => {
     if (!autofillData) return;
     if (autofillData.company) setCompany(autofillData.company);
@@ -42,7 +49,15 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
     if (autofillData.workModel) setWorkModel(autofillData.workModel);
     if (autofillData.city) setCity(autofillData.city);
     if (autofillData.country) setCountry(autofillData.country);
-    if (autofillData.requirements) setRequirements(autofillData.requirements);
+    if (autofillData.tags) {
+      setTags(autofillData.tags);
+    } else if (autofillData.requirements) {
+      // Temporary fallback for older LLM responses that might still have it cached
+      const autofillTags = Array.isArray(autofillData.requirements) 
+        ? autofillData.requirements 
+        : autofillData.requirements.split(',').map(r => r.trim().toUpperCase()).filter(Boolean);
+      setTags(autofillTags);
+    }
   }, [autofillData]);
 
   const handleSubmit = (e) => {
@@ -61,7 +76,7 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
       dateTechnical: dateTechnical || null,
       dateOffer: dateOffer || null,
       dateRejected: dateRejected || null,
-      requirements,
+      tags,
       notes 
     };
 
@@ -84,7 +99,7 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
       setDateTechnical('');
       setDateOffer('');
       setDateRejected('');
-      setRequirements('');
+      setTags([]);
       setNotes(''); 
     }
   };
@@ -215,12 +230,12 @@ function JobForm({ onSaveJob, existingJob = null, autofillData = null }) {
         )}
       </div>
 
-      <textarea 
-        placeholder="Requirements (e.g., React, TypeScript, 3+ Years Exp)" 
-        value={requirements} 
-        onChange={(e) => setRequirements(e.target.value)} 
-        className="form-input textarea-input"
-      />
+      <div className="form-group" style={{ marginBottom: '10px' }}>
+        <RequirementTagInput 
+          tags={tags} 
+          onChange={setTags} 
+        />
+      </div>
 
       <textarea 
         placeholder="Notes (e.g., Cover Letter needed, Referral from Sarah)" 

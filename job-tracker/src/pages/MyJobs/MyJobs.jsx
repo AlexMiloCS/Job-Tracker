@@ -85,7 +85,7 @@ export default function MyJobs() {
         job.country,
         job.workModel,
         job.status,
-        job.requirements,
+        ...(job.tags ? job.tags.map(t => typeof t === 'string' ? t : t.name) : []),
         job.notes
       ].filter(Boolean).join(' ').toLowerCase();
       
@@ -239,10 +239,24 @@ export default function MyJobs() {
                   )}
                 </div>
                 
-                {job.requirements && (
-                  <p className="job-requirements">
-                    {job.requirements}
-                  </p>
+                {job.tags && job.tags.length > 0 && (
+                  <div className="job-tags-container" style={{ marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {job.tags.map((tag, idx) => {
+                      const tagName = typeof tag === 'string' ? tag : tag.name;
+                      return (
+                        <span key={idx} style={{
+                          backgroundColor: 'var(--bg-badge)',
+                          color: 'var(--text-primary)',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          border: '1px solid var(--border-color)'
+                        }}>
+                          {tagName}
+                        </span>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
 
@@ -347,10 +361,26 @@ export default function MyJobs() {
                     <strong>Technical Interview:</strong> {new Date(jobToView.dateTechnical).toLocaleDateString()}
                   </p>
                 )}
-                {jobToView.requirements && (
+                {jobToView.tags && jobToView.tags.length > 0 && (
                   <div style={{ margin: '15px 0' }}>
                     <strong style={{ color: 'var(--text-secondary)' }}>Requirements:</strong>
-                    <p style={{ margin: '5px 0', fontSize: '14px', whiteSpace: 'pre-wrap' }}>{jobToView.requirements}</p>
+                    <div style={{ marginTop: '5px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {jobToView.tags.map((tag, idx) => {
+                        const tagName = typeof tag === 'string' ? tag : tag.name;
+                        return (
+                          <span key={idx} style={{
+                            backgroundColor: 'var(--bg-badge)',
+                            color: 'var(--text-primary)',
+                            padding: '4px 10px',
+                            borderRadius: '16px',
+                            fontSize: '13px',
+                            border: '1px solid var(--border-color)'
+                          }}>
+                            {tagName}
+                          </span>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
                 {jobToView.notes && (
