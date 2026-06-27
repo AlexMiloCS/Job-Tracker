@@ -1,4 +1,5 @@
 import Job from '../models/Job.js';
+import User from '../models/User.js';
 
 class AnalyticsController {
   constructor() {
@@ -12,7 +13,7 @@ class AnalyticsController {
         userId: req.userId,
         requirements: { $exists: true, $ne: '' }
       });
-
+      
       const requirementCounts = {};
 
       jobs.forEach(job => {
@@ -23,23 +24,19 @@ class AnalyticsController {
         
         reqs.forEach(reqName => {
           if (!reqName || reqName === '?' || reqName === '-') return;
-          if (requirementCounts[reqName]) {
-            requirementCounts[reqName]++;
-          } else {
-            requirementCounts[reqName] = 1;
-          }
+          requirementCounts[reqName] = (requirementCounts[reqName] || 0) + 1;
         });
       });
 
-      // Convert to array and sort descending by count
-      const sortedRequirements = Object.keys(requirementCounts)
-        .map(key => ({ name: key, count: requirementCounts[key] }))
+      // Convert to array and sort
+      const sortedRequirements = Object.entries(requirementCounts)
+        .map(([name, count]) => ({ name, count }))
         .sort((a, b) => b.count - a.count);
 
-      res.status(200).json(sortedRequirements);
-    } catch (error) {
-      console.error('Error fetching requirement radar data:', error);
-      res.status(500).json({ error: 'Server error fetching requirement radar data' });
+      res.json(sortedRequirements);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server Error');
     }
   }
 }

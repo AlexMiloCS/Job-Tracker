@@ -13,6 +13,12 @@ Runs on port 5001 by default.
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
+import os
+from dotenv import load_dotenv
+
+# Load env vars from the backend .env file before other imports
+backend_env = os.path.join(os.path.dirname(__file__), "..", "backend", ".env")
+load_dotenv(backend_env)
 
 from cleaning.normalize import normalize_title, normalize_titles
 from embedding.embed import generate_embeddings
@@ -167,6 +173,7 @@ def assign():
         "clusterId": cluster_id,
         "clusterLabel": label,
     })
+
 
 
 @app.route("/health", methods=["GET"])
