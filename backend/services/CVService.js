@@ -1,7 +1,7 @@
 import User from '../models/User.js';
 import fs from 'fs';
 import path from 'path';
-import LatexResumeBuilder from '../utils/LatexResumeBuilder.js';
+import LatexResumeBuilder from '../utils/latex/LatexResumeBuilder.js';
 import LatexCompilerService from './LatexCompilerService.js';
 
 class CVService {
