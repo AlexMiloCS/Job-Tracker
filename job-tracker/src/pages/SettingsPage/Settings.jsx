@@ -133,6 +133,21 @@ function Settings() {
     }
   };
 
+  const handleViewGeneratedCV = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/cv-file/generated`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Failed to fetch generated CV');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch(err) {
+      setCvMessage({ type: 'error', text: 'Failed to load generated CV' });
+    }
+  };
+
   const handleClearSavedCV = async () => {
     setCvMessage(null);
     try {
@@ -296,9 +311,17 @@ function Settings() {
                 <span style={{ fontWeight: '500', color: 'var(--text-primary)' }}>
                   ✅ Linked to your account
                 </span>
-                <button type="button" onClick={handleClearSavedCV} className="submit-btn outline-btn" style={{ borderColor: '#ef4444', color: '#ef4444', marginLeft: 'auto', padding: '6px 12px', marginTop: 0 }}>
-                  ✖ Clear Saved CV
-                </button>
+                
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: '15px', alignItems: 'center' }}>
+                  {user?.generatedCvUrl && (
+                    <button onClick={handleViewGeneratedCV} style={{ fontWeight: '500', color: 'var(--primary-color)', textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}>
+                      📄 View PDF
+                    </button>
+                  )}
+                  <button type="button" onClick={handleClearSavedCV} className="submit-btn outline-btn" style={{ borderColor: '#ef4444', color: '#ef4444', padding: '6px 12px', marginTop: 0 }}>
+                    ✖ Clear Saved CV
+                  </button>
+                </div>
               </div>
             ) : (
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>No Builder CV currently saved. Go to CV Builder and click 'Save CV'.</p>

@@ -371,9 +371,9 @@ export default function MyJobs() {
                           <span key={idx} style={{
                             backgroundColor: 'var(--bg-badge)',
                             color: 'var(--text-primary)',
-                            padding: '4px 10px',
-                            borderRadius: '16px',
-                            fontSize: '13px',
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
                             border: '1px solid var(--border-color)'
                           }}>
                             {tagName}
