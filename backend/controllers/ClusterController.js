@@ -3,15 +3,10 @@ import ClusterService from '../services/ClusterService.js';
 class ClusterController {
   constructor() {
     this.clusterService = new ClusterService();
-    
-    // Bind methods to preserve 'this' context when used as Express route handlers
-    this.recluster = this.recluster.bind(this);
-    this.rename = this.rename.bind(this);
-    this.autoName = this.autoName.bind(this);
   }
 
   // POST /api/cluster/recluster
-  async recluster(req, res) {
+  recluster = async (req, res) => {
     try {
       const { autoName = false } = req.body;
       const jobs = await this.clusterService.fetchUserJobs(req.userId);
@@ -42,10 +37,10 @@ class ClusterController {
         error: error.message || 'Internal server error during reclustering',
       });
     }
-  }
+  };
 
   // POST /api/cluster/rename
-  async rename(req, res) {
+  rename = async (req, res) => {
     try {
       const { clusterId, newLabel } = req.body;
 
@@ -63,10 +58,10 @@ class ClusterController {
       console.error('Rename cluster error:', error.message);
       res.status(500).json({ error: 'Failed to rename cluster' });
     }
-  }
+  };
 
   // POST /api/cluster/auto-name
-  async autoName(req, res) {
+  autoName = async (req, res) => {
     try {
       const jobs = await this.clusterService.fetchUserJobs(req.userId);
       const clusters = this.clusterService.groupJobsByCluster(jobs);
@@ -90,7 +85,7 @@ class ClusterController {
       console.error('Auto-name error:', error.message);
       res.status(500).json({ error: 'Failed to auto-name clusters' });
     }
-  }
+  };
 }
 
 export default ClusterController;

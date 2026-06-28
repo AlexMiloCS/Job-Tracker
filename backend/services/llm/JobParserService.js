@@ -1,4 +1,6 @@
 import LLMClient from './LLMClient.js';
+import fs from 'fs';
+import { PDFParse } from 'pdf-parse';
 
 class JobParserService {
   constructor() {
@@ -135,6 +137,35 @@ Rules:
       const err = new Error('LLM returned invalid JSON. Please try again.');
       err.status = 502;
       throw err;
+    }
+  }
+
+  /**
+   * Reads a PDF file from disk, extracts its text, parses it into
+   * structured CV JSON, and cleans up the temporary file.
+   */
+  async parseCvFromFile(file) {
+    try {
+      const fileBuffer = fs.readFileSync(file.path);
+      const parser = new PDFParse({ data: fileBuffer });
+      const data = await parser.getText();
+
+      // Clean up the uploaded file since we just needed the text
+      fs.unlinkSync(file.path);
+
+      if (!data.text || data.text.trim().length === 0) {
+        const err = new Error('Could not extract text from the PDF');
+        err.status = 400;
+        throw err;
+      }
+
+      return await this.parseCvFromText(data.text);
+    } catch (error) {
+      // Ensure file is cleaned up on error
+      if (file && fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      }
+      throw error;
     }
   }
 }

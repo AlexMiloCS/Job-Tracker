@@ -6,7 +6,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import groqRoutes from './routes/groq.js';
 import clusterRoutes from './routes/cluster.js';
-import authRoutes from './routes/auth.js';
+import userRoutes from './routes/user.js';
+import cvRoutes from './routes/cv.js';
 import jobRoutes from './routes/jobs.js';
 import analyticsRoutes from './routes/analytics.js';
 
@@ -24,7 +25,8 @@ app.use(express.json());
 // Routes
 app.use('/api/groq', groqRoutes);
 app.use('/api/cluster', clusterRoutes);
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', userRoutes);   // signup, login, profile, password
+app.use('/api/auth', cvRoutes);     // CV upload, compile, data, etc.
 app.use('/api/jobs', jobRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
