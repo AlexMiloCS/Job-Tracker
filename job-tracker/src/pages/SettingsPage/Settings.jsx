@@ -22,6 +22,8 @@ function Settings() {
   const [passwordMessage, setPasswordMessage] = useState(null);
   const [cvMessage, setCvMessage] = useState(null);
   const [hasSavedCV, setHasSavedCV] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -104,7 +106,8 @@ function Settings() {
     }
   };
 
-  const handleDeleteCV = async () => {
+  const confirmDeleteCV = async () => {
+    setShowDeleteModal(false);
     setCvMessage(null);
     try {
       const resultAction = await dispatch(deleteCV());
@@ -148,7 +151,8 @@ function Settings() {
     }
   };
 
-  const handleClearSavedCV = async () => {
+  const confirmClearSavedCV = async () => {
+    setShowClearModal(false);
     setCvMessage(null);
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/cv-data`, {
@@ -281,7 +285,7 @@ function Settings() {
                 <button onClick={handleViewCV} style={{ fontWeight: '500', color: 'var(--primary-color)', textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}>
                   📄 View Current CV
                 </button>
-                <button type="button" onClick={handleDeleteCV} className="submit-btn outline-btn" style={{ borderColor: '#ef4444', color: '#ef4444', marginLeft: 'auto', padding: '6px 12px', marginTop: 0 }}>
+                <button type="button" onClick={() => setShowDeleteModal(true)} className="submit-btn outline-btn" style={{ borderColor: '#ef4444', color: '#ef4444', marginLeft: 'auto', padding: '6px 12px', marginTop: 0 }}>
                   ✖ Delete
                 </button>
               </div>
@@ -302,9 +306,16 @@ function Settings() {
           </div>
 
           <div className="setting-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '15px', marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-            <div className="setting-text">
-              <strong>Saved Builder CV</strong>
-              <p>Your work from the CV Builder saved to your account.</p>
+            <div className="setting-text" style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <strong>Saved Builder CV</strong>
+                <p>Your work from the CV Builder saved to your account.</p>
+              </div>
+              {hasSavedCV && user?.generatedCvUrl && (
+                <button onClick={handleViewGeneratedCV} className="submit-btn outline-btn" style={{ marginTop: 0, padding: '6px 12px' }}>
+                  📄 View PDF
+                </button>
+              )}
             </div>
             {hasSavedCV ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', width: '100%', boxSizing: 'border-box' }}>
@@ -313,12 +324,7 @@ function Settings() {
                 </span>
                 
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '15px', alignItems: 'center' }}>
-                  {user?.generatedCvUrl && (
-                    <button onClick={handleViewGeneratedCV} style={{ fontWeight: '500', color: 'var(--primary-color)', textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}>
-                      📄 View PDF
-                    </button>
-                  )}
-                  <button type="button" onClick={handleClearSavedCV} className="submit-btn outline-btn" style={{ borderColor: '#ef4444', color: '#ef4444', padding: '6px 12px', marginTop: 0 }}>
+                  <button type="button" onClick={() => setShowClearModal(true)} className="submit-btn outline-btn" style={{ borderColor: '#ef4444', color: '#ef4444', padding: '6px 12px', marginTop: 0 }}>
                     ✖ Clear Saved CV
                   </button>
                 </div>
@@ -330,6 +336,40 @@ function Settings() {
         </section>
 
       </div>
+
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Delete Current CV</h3>
+            <p>Are you sure you want to delete your uploaded CV?</p>
+            <div className="modal-actions">
+              <button onClick={() => setShowDeleteModal(false)} className="btn-cancel">
+                Cancel
+              </button>
+              <button onClick={confirmDeleteCV} className="btn-confirm-delete">
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showClearModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Clear Saved Builder CV</h3>
+            <p>Are you sure you want to clear your saved Builder CV? This cannot be undone.</p>
+            <div className="modal-actions">
+              <button onClick={() => setShowClearModal(false)} className="btn-cancel">
+                Cancel
+              </button>
+              <button onClick={confirmClearSavedCV} className="btn-confirm-delete">
+                Yes, Clear CV
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
